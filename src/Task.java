@@ -3,13 +3,13 @@ import java.util.Objects;
 public class Task {
     protected String name;
     protected String description;
-    protected int ID;
+    protected int id;
     protected String status;
 
-    public Task(String name, String description, int ID) {
+    public Task(String name, String description, int id) {
         this.name = name;
         this.description = description;
-        this.ID = ID;
+        this.id = id;
         status = "NEW";
     }
 
@@ -19,7 +19,7 @@ public class Task {
             return false;
         }
         Task task = (Task) o;
-        return ID == task.ID && Objects.equals(name, task.name) && Objects.equals(description, task.description) &&
+        return id == task.id && Objects.equals(name, task.name) && Objects.equals(description, task.description) &&
             Objects.equals(status, task.status);
     }
 
@@ -27,7 +27,7 @@ public class Task {
     public int hashCode() {
         int result = Objects.hashCode(name);
         result = 31 * result + Objects.hashCode(description);
-        result = 31 * result + ID;
+        result = 31 * result + id;
         result = 31 * result + Objects.hashCode(status);
         return result;
     }
@@ -38,7 +38,7 @@ public class Task {
             "==============================" +
                 "\n Название задачи:" + name +
                 "\n Описание:" + description +
-                "\n Индефикатор:" + ID +
+                "\n ID:" + id +
                 "\n Статус:" + status;
     }
 
