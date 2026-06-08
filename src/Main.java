@@ -8,7 +8,7 @@ public class Main {
     public static void main(String[] args) {
         HashMap<Integer, Task> baseTask = new HashMap<>();
         HashMap<Integer, Epic> baseEpic = new HashMap<>();
-        TaskManager taskManager = new TaskManager();
+        TaskManager taskManager = new TaskManager();//нужен, чтобы юзать в статическом мэйне нестатические переопределенные методы
         int choiceId;
         while (true) {
             printMenu();
@@ -83,14 +83,15 @@ public class Main {
                     }
                     break;
                 case 6:
-                    if (taskManager.getHistory().isEmpty()) {
+                    if (taskManager.getHistory(TaskManager.getBrowsingHistory()).isEmpty()) {
                         System.out.println("История просмотров пуста");
                     } else {
-                        for (Task task : taskManager.getHistory()) {
+                        System.out.println("Ваша история просмотров:");
+                        for (Task task : taskManager.getHistory(TaskManager.getBrowsingHistory())) {
                             System.out.println(task);
-                            if (!baseEpic.containsKey(task.id) && !baseTask.containsKey(task.id)) {
-                                System.out.println(" Объект удалён)");
-                            }
+                            if (!baseEpic.containsKey(task.id) && !baseTask.containsKey(task.id)) { //этот кусок кода будет ненужен,
+                                System.out.println(" (Объект удалён)");                             //если всё-таки раскомментирую те 2
+                            }                                                                       //метода с удалением
                         }
                     }
                     break;
@@ -101,6 +102,7 @@ public class Main {
                     choiceId = scanner.nextInt();
                     if (choiceRemove == 1 || choiceRemove == 2) {
                         TaskManager.removeObj(baseTask, baseEpic, choiceRemove, choiceId);
+                        //taskManager.removeInHistory(TaskManager.getBrowsingHistory(),choiceId); //спрятал его, причину написал в реализации
                     } else if (choiceRemove == 3) {
                         TaskManager.removeSubTask(choiceId, baseEpic);
                     } else {
@@ -110,6 +112,7 @@ public class Main {
                 case 8:
                     baseTask.clear();
                     baseEpic.clear();
+                    //taskManager.setBrowsingHistory(TaskManager.getBrowsingHistory());
                     System.out.println("Все задачи удалены");
                     break;
                 case 9:

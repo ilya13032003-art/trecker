@@ -1,8 +1,7 @@
-//исходя из описания InMemoryTaskManager, мне показалось, что это копия этого класса, поэтому я просто напишу интерфейс
-//хистори мэнеджер и добавлю его сюда
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Scanner;
 
@@ -19,7 +18,16 @@ public class TaskManager implements HistoryManager {
         return indicator;
     }
 
-    private static ArrayList<Task> browsingHistory = new ArrayList<>();
+    private static LinkedHashSet<Task> browsingHistory = new LinkedHashSet<>();
+
+    public static LinkedHashSet<Task> getBrowsingHistory() {
+        return browsingHistory;
+    }
+
+    public static LinkedHashSet<Task> setBrowsingHistory(LinkedHashSet<Task> browsingHistory) {
+        browsingHistory.clear();           //нужен, када удаляешь все существующие задачи, чоб они и в истории подтёрлись тож
+        return browsingHistory;            //пока спрячу его, причину написал в комментарии к методу removeInHistory
+    }
 
     static void createObj(HashMap<Integer, Task> baseTask, HashMap<Integer, Epic> baseEpic, String name, String description, int type) {
         setIndicator();
@@ -122,15 +130,26 @@ public class TaskManager implements HistoryManager {
 
     @Override
     public void add(Task task) {
-        if (browsingHistory.size() >= 10) {
-            browsingHistory.remove(9);
+        boolean isContains = browsingHistory.add(task);
+        if (!isContains) {
+            browsingHistory.remove(task);
+            browsingHistory.add(task);
         }
-        browsingHistory.add(task);
     }
 
     @Override
-    public List<Task> getHistory() {
-        return browsingHistory;
+    public List<Task> getHistory(LinkedHashSet<Task> browsingHistory) {
+        ArrayList<Task> history = new ArrayList<>(browsingHistory);
+        return history;
+    }
+
+    @Override
+    public void removeInHistory(LinkedHashSet<Task> browsingHistory,int choiceId) { //он нужен, чтобы при удалении задачи, она
+        for (Task task : getBrowsingHistory()) {                                    //удалялась и из истории(так в тз просили).
+            if (task.id == choiceId) {                                              //Пока будет нереализован,
+                getBrowsingHistory().remove(task);                                  //тк ты хотел бы видеть удаленные задачи в истории
+            }                                                                       //ес чо раскоментирую в меню
+        }
     }
 }
 
