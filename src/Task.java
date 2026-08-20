@@ -4,13 +4,23 @@ public class Task {
     protected String name;
     protected String description;
     protected int id;
-    protected String status;
+    protected TaskStatus status;
+
+    public Task() {
+    }
 
     public Task(String name, String description, int id) {
         this.name = name;
         this.description = description;
         this.id = id;
-        status = "NEW";
+        status = TaskStatus.NEW;
+    }
+
+    public Task(String name, String description, int id, TaskStatus status) {
+        this.name = name;
+        this.description = description;
+        this.id = id;
+        this.status = status;
     }
 
     @Override
@@ -19,8 +29,7 @@ public class Task {
             return false;
         }
         Task task = (Task) o;
-        return id == task.id && Objects.equals(name, task.name) && Objects.equals(description, task.description) &&
-            Objects.equals(status, task.status);
+        return id == task.id && Objects.equals(name, task.name) && Objects.equals(description, task.description) && status == task.status;
     }
 
     @Override
@@ -41,5 +50,4 @@ public class Task {
                 "\n ID:" + id +
                 "\n Статус:" + status;
     }
-
 }
