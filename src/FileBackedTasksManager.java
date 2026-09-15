@@ -2,161 +2,109 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.stream.Stream;
 
-public class FileBackedTasksManager extends Manager {
+public class FileBackedTasksManager extends InMemoryTaskManager {
+    private HistoryInMemory historyInMemory;
 
-    FileManager fileManager = new FileManager();
+    public void setHistory(HistoryInMemory historyInMemory) {
+        this.historyInMemory = historyInMemory;
+    }
 
     @Override
-    public void createTaskByType(String name, String description, int type) { //да, это ужас, понимаю, франкенштейн какойто
-        super.createTaskByType(name, description, type);                      //понимаю что неправильно такое оставлять, но силы
-        int id = getIndicator();                                              //покидают меня, мб в след спринте перепишу
-        String str = null;
-        if (type == 2) {
-            Epic epic = getBaseEpic().get(id);
-            str = fileManager.taskToString(epic) + ",";
-        } else if (type == 1) {
-            Task task = getBaseTask().get(id);
-            str = fileManager.taskToString(task);
-        } else if (type == 3) {
-            for (Epic epic : baseEpic.values()) {
-                for (int idSubTask : epic.getSubTaskArray().keySet()) {
-                    if (id == idSubTask) {
-                        Task task = epic.getSubTaskArray().get(id);
-                        str = fileManager.taskToString(task) + "," + "subTask";
+    public Task createTask(String name, String description, TaskType taskType) {
+        Task task = super.createTask(name, description, taskType);
+        save();
+        return task;
+    }
 
-                        String strId = String.join(",", epic.createSubTasksId());
-                        String strEpic = fileManager.taskToString(epic) + "," + strId;
-                        String[] changeElement = strEpic.split(",", -1);
+    @Override
+    public Epic createEpic(String name, String description, TaskType taskType) {
+        Epic epic = super.createEpic(name, description, taskType);
+        save();
+        return epic;
+    }
 
-                        List<String[]> newTasks = fileManager.cutTask();
-                        for (int i = 1; i < newTasks.size(); i++) {
-                            String[] qq = newTasks.get(i);
-                            if (qq.length == 0 || qq[0] == null || qq[0].equals("null")) continue;
-
-                            int epicId = Integer.parseInt(qq[0]);
-                            if (epic.id == epicId) {
-                                newTasks.set(i, changeElement);
-                            }
-                        }
-                        try {
-                            fileManager.rewriting(newTasks);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        break;
-                    }
-                }
-                if (str != null) break;
-            }
-        }
-        if (str != null && !str.isEmpty()) {
-            try {
-                fileManager.save(str + System.lineSeparator());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+    @Override
+    public Task createSubTask(String name, String description, int epicId, TaskType taskType) {
+        Task task = super.createSubTask(name, description, epicId, taskType);
+        save();
+        return task;
     }
 
     @Override
     public void updateStatus(int taskID, int taskType, int status) {
         super.updateStatus(taskID, taskType, status);
-        List<String[]> newTask = fileManager.cutTask();
-        for (int i = 1; i < newTask.size(); i++) {
-            String[] task = newTask.get(i);
-            int id = Integer.parseInt(task[0]);
-            if (id == taskID) {
-                if (status == 1) {
-                    task[3] = "NEW";
-                } else if (status == 2) {
-                    task[3] = "IN_PROGRESS";
-                } else {
-                    task[3] = "DONE";
-                }
-            }
-        }
-        try {
-            fileManager.rewriting(newTask);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        save();
     }
 
     @Override
     public void removeTaskByType(int taskType, int taskId) {
         super.removeTaskByType(taskType, taskId);
-        if (taskType == 1) {
-            fileManager.removeTaskInFile(taskId);
-        } else {
-            List<String> subTaskId = fileManager.removeTaskInFile(taskId);
-            for (String str : subTaskId) {
-                int id = Integer.parseInt(str);
-                fileManager.removeTaskInFile(id);
-            }
-        }
+        save();
     }
 
     @Override
     public void removeSubTask(int taskId) {
         super.removeSubTask(taskId);
-        fileManager.removeTaskInFile(taskId);
-        int iInd = 0;
-        int jInd = 0;
-        List<String[]> tasks = fileManager.cutTask();
-        for (int i = 1; i < tasks.size(); i++) {
-            String[] task = tasks.get(i);
-            if (task.length < 5 || "subTask".equals((task[4]))) continue;
-            for (int j = 4; j < task.length; j++) {
-                int idSubTask = Integer.parseInt(task[j]);
-                if (taskId == idSubTask) {
-                    jInd = j;
-                    iInd = i;
-                    break;
+        save();
+    }
+
+    @Override
+    public void removeAll() {
+        super.removeAll();
+        save();
+    }
+
+    private String taskToString(Task task) {
+        String str = null;
+        if (TaskType.SUB_TASK.equals(task.taskType)) {
+            for (Epic epic : baseEpic.values()) {
+                for (int id : epic.getSubTasksId()) {
+                    if (task.id == id) {
+                        str = task.id + "^" + task.taskType + "^" + task.name + "^"
+                            + task.description + "^" + task.status + "^" + epic.id;
+                    }
                 }
             }
+        } else {
+            str = task.id + "^" + task.taskType + "^" + task.name + "^"
+                + task.description + "^" + task.status;
         }
-        List<String> newTask = new ArrayList<>(Arrays.asList(tasks.get(iInd)));
-        newTask.remove(jInd);
-        String[] arr = newTask.toArray(new String[0]);
-        tasks.set(iInd, arr);
-        try {
-            fileManager.rewriting(tasks);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        return str;
     }
 
-    @Override
-    public void checkStatus(Epic epic) {
-        super.checkStatus(epic);
-        String str = String.valueOf(epic.status);
-        List<String[]> newTask = fileManager.cutTask();
-        for (int i = 1; i < newTask.size(); i++) {
-            String[] task = newTask.get(i);
-            int id = Integer.parseInt(task[0]);
-            if (id == epic.id) {
-                task[3] = str;
+    public void save() {
+        List<String> allTasks = new ArrayList<>(
+            Stream.concat(
+                    Stream.concat(baseTask.values().stream(), baseEpic.values().stream()),
+                    baseEpic.values().stream()
+                        .flatMap(epic -> epic.getSubTaskArray().values().stream())
+                )
+                .sorted((task1, task2) -> Integer.compare(task1.getId(), task2.getId()))
+                .map(this::taskToString)
+                .toList()
+        );
+
+        allTasks.add(0, historyInStr(historyInMemory.getArrayHistory()));
+
+        try (Writer writer = new FileWriter(FileManager.TASK_FILE.toFile())) {
+            for (String task : allTasks) {
+                writer.write(task);
+                writer.write(System.lineSeparator());
             }
-            try {
-                fileManager.rewriting(newTask);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    @Override
-    protected void removeAll() {
-        super.removeAll();
-        String str = "-";
-        try (Writer fileWriter = new FileWriter("taskFile.txt", false)) {
-            fileWriter.write(str + System.lineSeparator());
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Не удалось сохранить задачи в файл", e);
         }
     }
-    }
 
+    private String historyInStr(LinkedHashSet<Task> arrayHistory) {
+        List<String> history = new ArrayList<>();
+        for (Task task : arrayHistory) {
+            history.add(String.valueOf(task.id));
+        }
+        return String.join(",", history);
+    }
+}

@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-public class InMemoryHistoryManager implements HistoryManager {
+public class HistoryInMemory implements HistoryManager {
 
     protected LinkedHashSet<Task> arrayHistory = new LinkedHashSet<>();
 
@@ -13,6 +13,11 @@ public class InMemoryHistoryManager implements HistoryManager {
     public LinkedHashSet<Task> setArrayHistory() {
         getArrayHistory().clear();
         return arrayHistory;
+    }
+
+    @Override
+    public void clearHistory() {
+        setArrayHistory();
     }
 
     @Override

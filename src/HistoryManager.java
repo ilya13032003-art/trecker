@@ -4,4 +4,5 @@ public interface HistoryManager {
     void add(Task task);
     List<Task> getHistory();
     void removeInHistory (int choiceId);
+    void clearHistory();
 }

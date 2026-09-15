@@ -1,10 +1,8 @@
 import java.util.HashMap;
-import java.util.Scanner;
 
-public class Manager implements  TaskManager {
+public class InMemoryTaskManager implements TaskManager {
 
-    static Scanner scanner = new Scanner(System.in);
-    protected static int indicator = 0;
+    protected int indicator = 0;
 
     protected HashMap<Integer, Task> baseTask = new HashMap<>();
     protected HashMap<Integer, Epic> baseEpic = new HashMap<>();
@@ -17,37 +15,41 @@ public class Manager implements  TaskManager {
         return baseEpic;
     }
 
-    public static int setIndicator() {
+    @Override
+    public int setIndicator() {
         return indicator++;
     }
 
-    public static int getIndicator() {
+    @Override
+    public int getIndicator() {
         return indicator;
     }
 
     @Override
-    public void createTaskByType(String name, String description, int type) {
-        setIndicator();
-        if (type == 1) {
-            Task task = new Task(name, description, getIndicator());
-            getBaseTask().put(task.id, task);
-        } else if (type == 2) {
-            Epic task = new Epic(name, description, getIndicator());
-            getBaseEpic().put(task.id, task);
-        } else if (type == 3) {
-            while (true) {
-                System.out.println("Введите ID эпика, которому принадлежит эта подзадача");
-                int iD = scanner.nextInt();
-                if (getBaseEpic().containsKey(iD)) {
-                    Task task = new Task(name, description, getIndicator());
-                    getBaseEpic().get(iD).getSubTaskArray().put(getIndicator(), task);
-                    checkStatus(getBaseEpic().get(iD));
-                    break;
-                } else {
-                    System.out.println("Эпика с таким ID нет");
-                }
-            }
+    public Task createTask(String name, String description, TaskType taskType) {
+        Task task = new Task(name, description, ++indicator, taskType);
+        baseTask.put(task.id, task);
+        return task;
+    }
+
+    @Override
+    public Epic createEpic(String name, String description, TaskType taskType) {
+        Epic epic = new Epic(name, description, ++indicator, taskType);
+        baseEpic.put(epic.id, epic);
+        return epic;
+    }
+
+    @Override
+    public Task createSubTask(String name, String description, int epicId, TaskType taskType) {
+        Epic epic = baseEpic.get(epicId);
+        if (epic == null) {
+            throw new IllegalArgumentException("Эпика с таким ID нет");
         }
+
+        Task task = new Task(name, description, ++indicator, taskType);
+        epic.getSubTaskArray().put(task.id, task);
+        checkStatus(epic);
+        return task;
     }
 
     @Override
@@ -105,6 +107,7 @@ public class Manager implements  TaskManager {
         } else {
             searchEpic(taskId).getSubTaskArray().remove(taskId);
             System.out.println("Подзадача удалена");
+            checkStatus(searchEpic(taskId));
         }
     }
 
@@ -140,7 +143,8 @@ public class Manager implements  TaskManager {
         }
     }
 
-    protected void removeAll() {
+    @Override
+    public void removeAll() {
         getBaseTask().clear();
         getBaseEpic().clear();
         System.out.println("Все задачи удалены");

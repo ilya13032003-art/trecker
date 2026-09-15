@@ -2,7 +2,6 @@
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Scanner;
 
@@ -11,19 +10,22 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 
-        Manager manager = null;
-        InMemoryHistoryManager inMemoryHistoryManager = null;
+        HistoryManager historyManager = null;
+        TaskManager manager = null;
+
 
         while (true) {
             System.out.println("ТЫ КРУТОЙ?\n 1 - ДА И Я БУДУ ХРАНИТЬ ВСЁ В ФАЙЛАХХХХ\n 2 - НЕТ, ВЕДЬ Я ЛЕФ");
             int JloxChoice = scanner.nextInt();
             if (JloxChoice == 1) {
-                manager = new FileBackedTasksManager();
-                inMemoryHistoryManager = new HistoryInFile();
+                HistoryInFile historyInFile = new HistoryInFile();
+                FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager();
+                fileBackedTasksManager.setHistory(historyInFile);
+                historyInFile.setManager(fileBackedTasksManager);
+                historyManager = historyInFile;
+                manager = fileBackedTasksManager;
 
-                final String HOME = "C:\\Users\\activ\\Idea\\trecker";
-
-                Path taskFile = Paths.get(HOME, "taskFile.txt");
+                Path taskFile = FileManager.TASK_FILE;
                 if (!Files.exists(taskFile)) {
                     Files.createFile(taskFile);
                 }
@@ -39,33 +41,30 @@ public class Main {
                         }
                         fileManager.stringToTask(newTasks.get(i), manager.getBaseTask(), manager.getBaseEpic());
                     }
-                    String[] idInStr = newTasks.get(0);
-                    for (String str : idInStr) {
+                    String idInStr = newTasks.get(0)[0];
+                    for (String str : idInStr.split(",")) {
                         if (str == null || str.isEmpty() || str.equals("-")) continue;
                         int id = Integer.parseInt(str);
                         if (manager.getBaseTask().containsKey(id)) {
                             Task task = manager.getBaseTask().get(id);
-                            inMemoryHistoryManager.add(task);
+                            historyManager.add(task);
                         } else if (manager.getBaseEpic().containsKey(id)) {
                             Task task = manager.getBaseEpic().get(id);
-                            inMemoryHistoryManager.add(task);
+                            historyManager.add(task);
                         } else {
                             System.out.println("Задачи с id=" + id + " нет");
                         }
                     }
                 } else {
-                    fileManager.save("-" + System.lineSeparator());
+                    fileBackedTasksManager.save();
                 }
-                while (true) { //продвигаем счётчик до актуального id
+                while (manager.getIndicator() < maxId) {
                     manager.setIndicator();
-                    if (manager.getIndicator() == maxId) {
-                        break;
-                    }
                 }
                 break;
             } else if (JloxChoice == 2) {
-                manager = new Manager();
-                inMemoryHistoryManager = new InMemoryHistoryManager();
+                manager = new InMemoryTaskManager();
+                historyManager = new HistoryInMemory();
                 break;
             } else {
                 System.out.println("Такой команды нет, дурачок, попробуй ещё раз");
@@ -88,7 +87,9 @@ public class Main {
                         System.out.println(epic);
                     }
                     break;
-                case 2:
+                case 2: //тут, наверное можно было бы использовать стринг билдер и при нахождении запрещённого символа отменять
+                        //результат и заставлять переписывать, но мне кажется, что лучше не заморачиваться с этой историей
+                    System.out.println("ВНИМАНИЕ: в названии и в опиcании задачи нельзя использовать символ \"^\"");
                     scanner.nextLine();  //исправил баг nextInt-nextLine
                     System.out.println("Введите название задачи");
                     String name = scanner.nextLine();
@@ -97,14 +98,26 @@ public class Main {
                     while (true) {
                         System.out.println("Выберите тип:\n 1 - задача\n 2 - эпик\n 3 - подзадача\n");
                         int type = scanner.nextInt();
-                        if (type == 1 || type == 2 || type == 3) {
-                            manager.createTaskByType(name, description, type);
+                        if (type == 1) {
+                            manager.createTask(name, description, TaskType.TASK);
+                            break;
+                        } else if (type == 2) {
+                                manager.createEpic(name, description, TaskType.EPIC);
+                                break;
+                        } else if (type == 3) {
+                            System.out.println("Введите id эпика, которому принадлежит подзадача");
+                            int epicId = scanner.nextInt();
+                            if (manager.getBaseEpic().containsKey(epicId)) {
+                                manager.createSubTask(name, description, epicId, TaskType.SUB_TASK);
+
+                            } else {
+                                System.out.println("Эпика с таким id нет");
+                            }
                             break;
                         } else {
                             System.out.println("Такой команды нет");
                         }
                     }
-                    System.out.println("Задача успешно создана!");
                     break;
                 case 3:
                     System.out.println("Выберите у чего бы вы хотели обновить статус: \n 1 - задача \n 2 - подзадача");
@@ -127,7 +140,7 @@ public class Main {
                     } else {
                         Task task = manager.getBaseTask().get(choiceId);
                         System.out.println(task);
-                        inMemoryHistoryManager.add(task);
+                        historyManager.add(task);
                     }
                     break;
                 case 5:
@@ -142,15 +155,15 @@ public class Main {
                         for (Task task : manager.getBaseEpic().get(choiceId).getSubTaskArray().values()) {
                             System.out.println(task);
                         }
-                        inMemoryHistoryManager.add(manager.getBaseEpic().get(choiceId));
+                        historyManager.add(manager.getBaseEpic().get(choiceId));
                     }
                     break;
                 case 6:
-                    if (inMemoryHistoryManager.getHistory().isEmpty()) {
+                    if (historyManager.getHistory().isEmpty()) {
                         System.out.println("История просмотров пуста");
                     } else {
                         System.out.println("Ваша история просмотров:");
-                        for (Task task : inMemoryHistoryManager.getHistory()) {
+                        for (Task task : historyManager.getHistory()) {
                             System.out.println(task);
                         }
                     }
@@ -162,7 +175,7 @@ public class Main {
                     choiceId = scanner.nextInt();
                     if (taskType == 1 || taskType == 2) {
                         manager.removeTaskByType(taskType, choiceId);
-                        inMemoryHistoryManager.removeInHistory(choiceId);
+                        historyManager.removeInHistory(choiceId);
                     } else if (taskType == 3) {
                         manager.removeSubTask(choiceId);
                     } else {
@@ -171,7 +184,7 @@ public class Main {
                     break;
                 case 8:
                     manager.removeAll();
-                    inMemoryHistoryManager.setArrayHistory();
+                    historyManager.clearHistory();
                     break;
                 case 9:
                     System.out.println("Выход");

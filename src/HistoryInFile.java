@@ -1,25 +1,25 @@
-import java.io.IOException;
+public class HistoryInFile extends HistoryInMemory {
+    private FileBackedTasksManager manager;
 
-public class HistoryInFile extends InMemoryHistoryManager {
-
-    FileManager fileManager = new FileManager();
+    public void setManager(FileBackedTasksManager manager) {
+        this.manager = manager;
+    }
 
     @Override
     public void add(Task task) {
         super.add(task);
-        try {
-            fileManager.historyInFile(getArrayHistory());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        manager.save();
     }
-     @Override
-     public void removeInHistory(int taskId) {
+
+    @Override
+    public void removeInHistory(int taskId) {
         super.removeInHistory(taskId);
-         try {
-             fileManager.historyInFile(getArrayHistory());
-         } catch (IOException e) {
-             e.printStackTrace();
-         }
-     }
-     }
+        manager.save();
+    }
+
+    @Override
+    public void clearHistory() {
+        super.clearHistory();
+        manager.save();
+    }
+}

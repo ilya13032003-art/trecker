@@ -5,40 +5,48 @@ public class Task {
     protected String description;
     protected int id;
     protected TaskStatus status;
+    protected TaskType taskType;
 
     public Task() {
     }
 
-    public Task(String name, String description, int id) {
+    public Task(String name, String description, int id, TaskType taskType) {
         this.name = name;
         this.description = description;
         this.id = id;
         status = TaskStatus.NEW;
+        this.taskType = taskType;
     }
 
-    public Task(String name, String description, int id, TaskStatus status) {
+    public Task(String name, String description, int id, TaskStatus status, TaskType taskType) {
         this.name = name;
         this.description = description;
         this.id = id;
         this.status = status;
+        this.taskType = taskType;
+    }
+
+    public int getId() {
+        return id;
     }
 
     @Override
     public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
+
         Task task = (Task) o;
-        return id == task.id && Objects.equals(name, task.name) && Objects.equals(description, task.description) && status == task.status;
+        return id == task.id;
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hashCode(name);
-        result = 31 * result + Objects.hashCode(description);
-        result = 31 * result + id;
-        result = 31 * result + Objects.hashCode(status);
-        return result;
+        return Integer.hashCode(id);
     }
 
     @Override
