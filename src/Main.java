@@ -2,6 +2,9 @@
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Scanner;
 
@@ -39,7 +42,13 @@ public class Main {
                         if (id > maxId) {
                             maxId = id;
                         }
-                        fileManager.stringToTask(newTasks.get(i), manager.getBaseTask(), manager.getBaseEpic());
+                        Task task = fileManager.stringToTask(newTasks.get(i), manager.getBaseTask(), manager.getBaseEpic());
+                        if (TaskType.EPIC.equals(task.taskType)) {
+                            //ля ля ля жу жу жу я с мозгами не дружу
+                        } else {
+                            manager.timeCheck(task.startTime, (int) task.duration.toMinutes());
+                            manager.getPrioritizedTasks().add(task);
+                        }
                     }
                     String idInStr = newTasks.get(0)[0];
                     for (String str : idInStr.split(",")) {
@@ -89,26 +98,36 @@ public class Main {
                     break;
                 case 2: //тут, наверное можно было бы использовать стринг билдер и при нахождении запрещённого символа отменять
                         //результат и заставлять переписывать, но мне кажется, что лучше не заморачиваться с этой историей
-                    System.out.println("ВНИМАНИЕ: в названии и в опиcании задачи нельзя использовать символ \"^\"");
-                    scanner.nextLine();  //исправил баг nextInt-nextLine
-                    System.out.println("Введите название задачи");
-                    String name = scanner.nextLine();
-                    System.out.println("Опишите вашу задачу");
-                    String description = scanner.nextLine();
+                    System.out.println("ВНИМАНИЕ: в названии и в опиcании задачи нельзя использовать символ \"^\" или перенос строки");
+                    scanner.nextLine();//исправил баг nextInt-nextLine
+                    String name = censorship("название");
+                    String description = censorship("описание");
                     while (true) {
                         System.out.println("Выберите тип:\n 1 - задача\n 2 - эпик\n 3 - подзадача\n");
                         int type = scanner.nextInt();
+                        scanner.nextLine(); //пустышка
                         if (type == 1) {
-                            manager.createTask(name, description, TaskType.TASK);
-                            break;
+                                System.out.println("Введите продолжительность выполнения задачи(В МИНУТАХ)");
+                                int durationInt = scanner.nextInt();
+                            scanner.nextLine(); //пустышка
+                            Duration duration = Duration.ofMinutes(durationInt);
+                                 LocalDateTime startTime = correctTime(manager, durationInt);
+                                 manager.createTask(name, description, TaskType.TASK, startTime, duration);
+                                 break;
                         } else if (type == 2) {
                                 manager.createEpic(name, description, TaskType.EPIC);
                                 break;
                         } else if (type == 3) {
                             System.out.println("Введите id эпика, которому принадлежит подзадача");
                             int epicId = scanner.nextInt();
+                            scanner.nextLine(); //пустышка
                             if (manager.getBaseEpic().containsKey(epicId)) {
-                                manager.createSubTask(name, description, epicId, TaskType.SUB_TASK);
+                                System.out.println("Введите продолжительность выполнения задачи(В МИНУТАХ)");
+                                int durationInt = scanner.nextInt();
+                                scanner.nextLine(); //пустышка
+                                Duration duration = Duration.ofMinutes(durationInt);
+                                LocalDateTime startTime = correctTime(manager, durationInt);
+                                manager.createSubTask(name, description, epicId, TaskType.SUB_TASK, startTime, duration);
 
                             } else {
                                 System.out.println("Эпика с таким id нет");
@@ -169,6 +188,9 @@ public class Main {
                     }
                     break;
                 case 7:
+                    System.out.println("Список задач, отсортированных по приоритетности выполнения: " + manager.getPrioritizedTasks());
+                    break;
+                case 8:
                     System.out.println("Выберите, что бы вы хотели удалить:\n 1 - задачу\n 2 - эпик\n 3 - подзадачу\n");
                     int taskType = scanner.nextInt();
                     System.out.println("Введите индентификатор объекта, который хотели бы удалить");
@@ -182,11 +204,11 @@ public class Main {
                         System.out.println("Такой команды нет");
                     }
                     break;
-                case 8:
+                case 9:
                     manager.removeAll();
                     historyManager.clearHistory();
                     break;
-                case 9:
+                case 10:
                     System.out.println("Выход");
                     return;
                 default:
@@ -204,9 +226,50 @@ public class Main {
              4 - просмотреть задачу
              5 - получить список подзадач определённого эпика
              6 - открыть историю просмотров
-             7 - удалить задачу
-             8 - удалить все задачи
-             9 - выход
+             7 - посмотреть список задач по приоретету их выполнения
+             8 - удалить задачу
+             9 - удалить все задачи
+             10 - выход
             """);
+    }
+
+    private static LocalDateTime correctTime(TaskManager manager, int durationInt) {
+        boolean ok = true;
+        LocalDateTime startTime = null;
+        while (ok) {
+            System.out.println("Введите дату и время старта выполнения вашей задачи в формате \"dd.MM.yyyy, HH:mm\"");
+            String startStr = scanner.nextLine();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm");
+            startTime = LocalDateTime.parse(startStr, formatter);
+            if (manager.timeCheck(startTime, durationInt)) {
+                ok = false;
+            } else {
+                System.out.println("Введеная вами дата занята другой задачей");
+            }
+        }
+        return startTime;
+    }
+
+    private static boolean validateText(String text) {
+        if (text == null
+            || text.contains("^")
+            || text.contains("\n")
+            || text.contains("\r")) {
+            return false;
+        }
+        return true;
+    }
+
+    private static String censorship(String str) {
+        while (true) {
+            System.out.println("Введите " + str + " задачи");
+            String text = scanner.nextLine();
+            if (validateText(text)) {
+                return text;
+            } else {
+                System.out.println("ВНИМАНИЕ: в названии и в опиcании задачи нельзя " +
+                    "использовать символ \"^\" или перенос строки");
+            }
+        }
     }
 }

@@ -1,11 +1,28 @@
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class InMemoryTaskManager implements TaskManager {
 
     protected int indicator = 0;
+    protected static final int SLOT_MINUTES = 5;
+    protected static final int SLOTS_PER_YEAR = 365 * 24 * 12;
+    protected static final LocalDateTime DAY_Z = LocalDateTime.of(2026, 9, 17, 0,0);
+    //именно в этот день я сел писать эту часть кода, задачам можно будет присваивать время до 1 года вперёд от этой даты
 
     protected HashMap<Integer, Task> baseTask = new HashMap<>();
     protected HashMap<Integer, Epic> baseEpic = new HashMap<>();
+    protected boolean[] slots =  new boolean[SLOTS_PER_YEAR];
+
+    public Set<Task> getPrioritizedTasks() {
+        return prioritizedTasks;
+    }
+
+    protected final Set<Task> prioritizedTasks =
+        new TreeSet<>(Comparator.comparing(task -> task.startTime));
 
     public HashMap<Integer, Task> getBaseTask() {
         return baseTask;
@@ -26,9 +43,10 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Task createTask(String name, String description, TaskType taskType) {
-        Task task = new Task(name, description, ++indicator, taskType);
+    public Task createTask(String name, String description, TaskType taskType, LocalDateTime startTime, Duration duration) {
+        Task task = new Task(name, description, ++indicator, taskType, startTime, duration);
         baseTask.put(task.id, task);
+        prioritizedTasks.add(task);
         return task;
     }
 
@@ -40,15 +58,18 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Task createSubTask(String name, String description, int epicId, TaskType taskType) {
+    public Task createSubTask(String name, String description, int epicId,
+        TaskType taskType, LocalDateTime startTime, Duration duration) {
         Epic epic = baseEpic.get(epicId);
         if (epic == null) {
             throw new IllegalArgumentException("Эпика с таким ID нет");
         }
 
-        Task task = new Task(name, description, ++indicator, taskType);
+        Task task = new Task(name, description, ++indicator, taskType, startTime, duration);
         epic.getSubTaskArray().put(task.id, task);
+        epic.timing();
         checkStatus(epic);
+        prioritizedTasks.add(task);
         return task;
     }
 
@@ -87,6 +108,12 @@ public class InMemoryTaskManager implements TaskManager {
             if (getBaseTask().get(taskId) == null) {
                 System.out.println("Такой задачи нет");
             } else {
+                Task task = getBaseTask().get(taskId);
+                int startSlot = dateInSlot(task.startTime);
+                for (int i = startSlot; i < startSlot + task.duration.toMinutes() / 5; i++) {
+                    slots[i] = false;
+                }
+                prioritizedTasks.remove(getBaseTask().get(taskId));
                 getBaseTask().remove(taskId);
                 System.out.println("Задача удалена");
             }
@@ -94,6 +121,13 @@ public class InMemoryTaskManager implements TaskManager {
             if (getBaseEpic().get(taskId) == null) {
                 System.out.println("Такого эпика - нет");
             } else {
+                for (Task task : getBaseEpic().get(taskId).getSubTaskArray().values()) {
+                    int startSlot = dateInSlot(task.startTime);
+                    prioritizedTasks.remove(task);
+                    for (int i = startSlot; i < startSlot + task.duration.toMinutes() / 5; i++) {
+                        slots[i] = false;
+                    }
+                }
                 getBaseEpic().remove(taskId);
                 System.out.println("Эпик удален");
             }
@@ -102,12 +136,25 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void removeSubTask(int taskId) {
-        if (searchEpic(taskId) == null) {
+        Epic epic = searchEpic(taskId);
+        Task task = epic.getSubTaskArray().get(taskId);
+        if (epic == null) {
             System.out.println("Подзадачи с таким ID - нет");
         } else {
-            searchEpic(taskId).getSubTaskArray().remove(taskId);
+            int startSlot = dateInSlot(task.startTime);
+            for (int i = startSlot; i < startSlot + task.duration.toMinutes() / 5; i++) {
+                slots[i] = false;
+            }
+            prioritizedTasks.remove(task);
+            epic.getSubTaskArray().remove(taskId);
+            if (!epic.getSubTaskArray().isEmpty()) {
+                epic.timing();
+            } else {
+                epic.duration = null;
+                epic.startTime = null;
+            }
             System.out.println("Подзадача удалена");
-            checkStatus(searchEpic(taskId));
+            checkStatus(epic);
         }
     }
 
@@ -147,7 +194,47 @@ public class InMemoryTaskManager implements TaskManager {
     public void removeAll() {
         getBaseTask().clear();
         getBaseEpic().clear();
+        for (int i = 0; i < slots.length; i++) {
+            slots[i] = false;
+        }
         System.out.println("Все задачи удалены");
+        prioritizedTasks.clear();
+    }
+
+    protected boolean isFree(int startSlot, int numberOfSlots) {
+        for (int i = startSlot; i < startSlot + numberOfSlots; i++) {
+            if (slots[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    protected void occupy(int startSlot, int numberOfSlots) {
+        if (isFree(startSlot, numberOfSlots)) {
+            for (int i = startSlot; i < startSlot + numberOfSlots; i++) {
+                slots[i] = true;
+            }
+        }
+    }
+
+    protected Integer dateInSlot(LocalDateTime startTime) {
+        Duration difference = Duration.between(DAY_Z, startTime);
+        int min = (int) difference.toMinutes();
+        int startSlot = min / 5;
+        return startSlot;
+    }
+
+    @Override
+    public boolean timeCheck(LocalDateTime startTime, int durationInt) {
+        int startSlot = dateInSlot(startTime);
+        int numberOfSlots = durationInt / 5;
+        if (isFree(startSlot, numberOfSlots)) {
+            occupy(startSlot, numberOfSlots);
+            return true;
+        } else {
+            return false;
+        }
     }
 }
 

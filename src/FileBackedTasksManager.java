@@ -1,6 +1,8 @@
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -14,8 +16,8 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     @Override
-    public Task createTask(String name, String description, TaskType taskType) {
-        Task task = super.createTask(name, description, taskType);
+    public Task createTask(String name, String description, TaskType taskType, LocalDateTime startTask, Duration duration) {
+        Task task = super.createTask(name, description, taskType, startTask, duration);
         save();
         return task;
     }
@@ -28,8 +30,9 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     @Override
-    public Task createSubTask(String name, String description, int epicId, TaskType taskType) {
-        Task task = super.createSubTask(name, description, epicId, taskType);
+    public Task createSubTask(String name, String description, int epicId,
+        TaskType taskType, LocalDateTime startTask, Duration duration) {
+        Task task = super.createSubTask(name, description, epicId, taskType, startTask, duration);
         save();
         return task;
     }
@@ -65,10 +68,13 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 for (int id : epic.getSubTasksId()) {
                     if (task.id == id) {
                         str = task.id + "^" + task.taskType + "^" + task.name + "^"
-                            + task.description + "^" + task.status + "^" + epic.id;
+                            + task.description + "^" + task.status + "^" + epic.id + "^" + task.startTime + "^" + task.duration;
                     }
                 }
             }
+        } else if (TaskType.TASK.equals(task.taskType)){
+            str = task.id + "^" + task.taskType + "^" + task.name + "^"
+                + task.description + "^" + task.status + "^" + task.startTime + "^" + task.duration;
         } else {
             str = task.id + "^" + task.taskType + "^" + task.name + "^"
                 + task.description + "^" + task.status;
@@ -107,4 +113,9 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         }
         return String.join(",", history);
     }
-}
+
+    @Override
+    public boolean timeCheck(LocalDateTime startTime, int durationInt) {
+        return super.timeCheck(startTime, durationInt);
+    }
+    }
