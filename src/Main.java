@@ -141,15 +141,31 @@ public class Main {
                 case 3:
                     System.out.println("Выберите у чего бы вы хотели обновить статус: \n 1 - задача \n 2 - подзадача");
                     int choiceCreate = scanner.nextInt();
-                    if (choiceCreate != 1 && choiceCreate != 2) {
+                    TaskType taskType;
+                    if (choiceCreate == 1) {
+                        taskType = TaskType.TASK;
+                    } else if (choiceCreate == 2) {
+                        taskType = TaskType.SUB_TASK;
+                    } else {
                         System.out.println("Такого типа задачи нет");
                         break;
                     }
                     System.out.println("Введите ID объекта, у которого хотите обновить статус");
                     choiceId = scanner.nextInt();
                     System.out.println("Выберите новый статус: \n 1 - NEW\n 2 - IN_PROGRESS\n 3 - DONE");
-                    int status = scanner.nextInt();
-                    manager.updateStatus(choiceId, choiceCreate, status);
+                    int statusChoice = scanner.nextInt();
+                    TaskStatus status;
+                    if (statusChoice == 1) {
+                        status = TaskStatus.NEW;
+                    } else if (statusChoice == 2) {
+                        status = TaskStatus.IN_PROGRESS;
+                    } else if (statusChoice == 3) {
+                        status = TaskStatus.DONE;
+                    } else {
+                        System.out.println("Такого статуса нет");
+                        break;
+                    }
+                    manager.updateStatus(choiceId, taskType, status);
                     break;
                 case 4:
                     System.out.println("Введите ID задачи, которую хотите посмотреть");
@@ -192,13 +208,16 @@ public class Main {
                     break;
                 case 8:
                     System.out.println("Выберите, что бы вы хотели удалить:\n 1 - задачу\n 2 - эпик\n 3 - подзадачу\n");
-                    int taskType = scanner.nextInt();
+                    int taskTypeChoice = scanner.nextInt();
                     System.out.println("Введите индентификатор объекта, который хотели бы удалить");
                     choiceId = scanner.nextInt();
-                    if (taskType == 1 || taskType == 2) {
-                        manager.removeTaskByType(taskType, choiceId);
+                    if (taskTypeChoice == 1) {
+                        manager.removeTaskByType(TaskType.TASK, choiceId);
                         historyManager.removeInHistory(choiceId);
-                    } else if (taskType == 3) {
+                    } else if (taskTypeChoice == 2) {
+                        manager.removeTaskByType(TaskType.EPIC, choiceId);
+                        historyManager.removeInHistory(choiceId);
+                    } else if (taskTypeChoice == 3) {
                         manager.removeSubTask(choiceId);
                     } else {
                         System.out.println("Такой команды нет");

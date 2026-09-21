@@ -1,0 +1,10 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+trecker,default,Task,2,107,2,6,1,30,2,10,0,8
+trecker,default,HistoryInMemory,0,75,0,6,0,21,0,10,0,7
+trecker,default,Epic,14,154,3,15,2,43,4,14,1,8
+trecker,default,FileBackedTasksManager,22,263,1,13,8,56,4,19,3,13
+trecker,default,TaskType,0,21,0,0,0,4,0,1,0,1
+trecker,default,InMemoryTaskManager,34,586,10,52,8,118,12,42,2,20
+trecker,default,HistoryInFile,0,27,0,0,0,12,0,5,0,5
+trecker,default,TaskStatus,0,21,0,0,0,4,0,1,0,1
+trecker,default,FileManager,7,225,2,12,2,41,2,12,0,7

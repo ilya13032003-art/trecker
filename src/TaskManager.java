@@ -10,8 +10,8 @@ public interface TaskManager {
     Task createTask(String name, String description, TaskType taskType, LocalDateTime startTime, Duration duration);
     Epic createEpic(String name, String description, TaskType taskType);
     Task createSubTask(String name, String description, int epicId, TaskType taskType, LocalDateTime startTime, Duration duration);
-    void updateStatus(int taskID, int taskType, int status);
-    void removeTaskByType(int taskType, int choiceId);
+    void updateStatus(int taskID, TaskType taskType, TaskStatus status);
+    void removeTaskByType(TaskType taskType, int choiceId);
     void removeSubTask(int choiceId);
     int setIndicator();
     int getIndicator();

@@ -74,27 +74,18 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void updateStatus(int taskID, int taskType, int status) {
-        if (taskType == 1 && !getBaseTask().containsKey(taskID)) {
+    public void updateStatus(int taskID, TaskType taskType, TaskStatus status) {
+        if (TaskType.TASK.equals(taskType) && !getBaseTask().containsKey(taskID)) {
             System.out.println("Задачи с таким ID нет");
-        } else if (taskType == 2 && searchEpic(taskID) == null) {
+        } else if (TaskType.SUB_TASK.equals(taskType) && searchEpic(taskID) == null) {
             System.out.println("Задачи с таким ID нет");
         } else {
-            switch (status) {
-                case 1:
-                    updateTaskStatus(taskType, taskID, TaskStatus.NEW);
-                    return;
-                case 2:
-                    updateTaskStatus(taskType, taskID, TaskStatus.IN_PROGRESS);
-                    return;
-                case 3:
-                    updateTaskStatus(taskType,  taskID, TaskStatus.DONE);
-            }
+            updateTaskStatus(taskType, taskID, status);
         }
     }
 
-    protected void updateTaskStatus(int taskType, int taskID, TaskStatus status) {
-        if (taskType == 1) {
+    protected void updateTaskStatus(TaskType taskType, int taskID, TaskStatus status) {
+        if (TaskType.TASK.equals(taskType)) {
             getBaseTask().get(taskID).status = status;
         } else {
             searchEpic(taskID).getSubTaskArray().get(taskID).status = status;
@@ -103,8 +94,8 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void removeTaskByType(int taskType, int taskId) {
-        if (taskType == 1) {
+    public void removeTaskByType(TaskType taskType, int taskId) {
+        if (TaskType.TASK.equals(taskType)) {
             if (getBaseTask().get(taskId) == null) {
                 System.out.println("Такой задачи нет");
             } else {
@@ -117,7 +108,7 @@ public class InMemoryTaskManager implements TaskManager {
                 getBaseTask().remove(taskId);
                 System.out.println("Задача удалена");
             }
-        } else if (taskType == 2) {
+        } else if (TaskType.EPIC.equals(taskType)) {
             if (getBaseEpic().get(taskId) == null) {
                 System.out.println("Такого эпика - нет");
             } else {

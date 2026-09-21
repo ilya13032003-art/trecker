@@ -12,9 +12,18 @@ import java.util.List;
 public class FileManager {
     public static final Path TASK_FILE =
         Paths.get("taskFile.txt").toAbsolutePath();
+    private final Path taskFile;
+
+    public FileManager() {
+        this(TASK_FILE);
+    }
+
+    public FileManager(Path taskFile) {
+        this.taskFile = taskFile;
+    }
 
     public List<String> readStr() throws IOException {
-        try (BufferedReader reader = new BufferedReader(new FileReader(TASK_FILE.toFile()))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(taskFile.toFile()))) {
             List<String> lines = new ArrayList<>();
             String line;
             while ((line = reader.readLine()) != null) {

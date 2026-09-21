@@ -1,6 +1,7 @@
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -9,7 +10,16 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public class FileBackedTasksManager extends InMemoryTaskManager {
+    private final Path taskFile;
     private HistoryInMemory historyInMemory;
+
+    public FileBackedTasksManager() {
+        this(FileManager.TASK_FILE);
+    }
+
+    public FileBackedTasksManager(Path taskFile) {
+        this.taskFile = taskFile;
+    }
 
     public void setHistory(HistoryInMemory historyInMemory) {
         this.historyInMemory = historyInMemory;
@@ -38,13 +48,13 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     @Override
-    public void updateStatus(int taskID, int taskType, int status) {
+    public void updateStatus(int taskID, TaskType taskType, TaskStatus status) {
         super.updateStatus(taskID, taskType, status);
         save();
     }
 
     @Override
-    public void removeTaskByType(int taskType, int taskId) {
+    public void removeTaskByType(TaskType taskType, int taskId) {
         super.removeTaskByType(taskType, taskId);
         save();
     }
@@ -96,7 +106,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
         allTasks.add(0, historyInStr(historyInMemory.getArrayHistory()));
 
-        try (Writer writer = new FileWriter(FileManager.TASK_FILE.toFile())) {
+        try (Writer writer = new FileWriter(taskFile.toFile())) {
             for (String task : allTasks) {
                 writer.write(task);
                 writer.write(System.lineSeparator());

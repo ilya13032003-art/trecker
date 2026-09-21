@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FileBackedTasksManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">trecker</a> &gt; <a href="index.source.html" class="el_package">default</a> &gt; <span class="el_source">FileBackedTasksManager.java</span></div><h1>FileBackedTasksManager.java</h1><pre class="source lang-java linenums">import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
+import java.nio.file.Path;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.stream.Stream;
+
+public class FileBackedTasksManager extends InMemoryTaskManager {
+    private final Path taskFile;
+    private HistoryInMemory historyInMemory;
+
+    public FileBackedTasksManager() {
+<span class="nc" id="L17">        this(FileManager.TASK_FILE);</span>
+<span class="nc" id="L18">    }</span>
+
+<span class="fc" id="L20">    public FileBackedTasksManager(Path taskFile) {</span>
+<span class="fc" id="L21">        this.taskFile = taskFile;</span>
+<span class="fc" id="L22">    }</span>
+
+    public void setHistory(HistoryInMemory historyInMemory) {
+<span class="fc" id="L25">        this.historyInMemory = historyInMemory;</span>
+<span class="fc" id="L26">    }</span>
+
+    @Override
+    public Task createTask(String name, String description, TaskType taskType, LocalDateTime startTask, Duration duration) {
+<span class="fc" id="L30">        Task task = super.createTask(name, description, taskType, startTask, duration);</span>
+<span class="fc" id="L31">        save();</span>
+<span class="fc" id="L32">        return task;</span>
+    }
+
+    @Override
+    public Epic createEpic(String name, String description, TaskType taskType) {
+<span class="fc" id="L37">        Epic epic = super.createEpic(name, description, taskType);</span>
+<span class="fc" id="L38">        save();</span>
+<span class="fc" id="L39">        return epic;</span>
+    }
+
+    @Override
+    public Task createSubTask(String name, String description, int epicId,
+        TaskType taskType, LocalDateTime startTask, Duration duration) {
+<span class="fc" id="L45">        Task task = super.createSubTask(name, description, epicId, taskType, startTask, duration);</span>
+<span class="fc" id="L46">        save();</span>
+<span class="fc" id="L47">        return task;</span>
+    }
+
+    @Override
+    public void updateStatus(int taskID, TaskType taskType, TaskStatus status) {
+<span class="fc" id="L52">        super.updateStatus(taskID, taskType, status);</span>
+<span class="fc" id="L53">        save();</span>
+<span class="fc" id="L54">    }</span>
+
+    @Override
+    public void removeTaskByType(TaskType taskType, int taskId) {
+<span class="fc" id="L58">        super.removeTaskByType(taskType, taskId);</span>
+<span class="fc" id="L59">        save();</span>
+<span class="fc" id="L60">    }</span>
+
+    @Override
+    public void removeSubTask(int taskId) {
+<span class="nc" id="L64">        super.removeSubTask(taskId);</span>
+<span class="nc" id="L65">        save();</span>
+<span class="nc" id="L66">    }</span>
+
+    @Override
+    public void removeAll() {
+<span class="fc" id="L70">        super.removeAll();</span>
+<span class="fc" id="L71">        save();</span>
+<span class="fc" id="L72">    }</span>
+
+    private String taskToString(Task task) {
+<span class="fc" id="L75">        String str = null;</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        if (TaskType.SUB_TASK.equals(task.taskType)) {</span>
+<span class="fc bfc" id="L77" title="All 2 branches covered.">            for (Epic epic : baseEpic.values()) {</span>
+<span class="fc bfc" id="L78" title="All 2 branches covered.">                for (int id : epic.getSubTasksId()) {</span>
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">                    if (task.id == id) {</span>
+<span class="fc" id="L80">                        str = task.id + &quot;^&quot; + task.taskType + &quot;^&quot; + task.name + &quot;^&quot;</span>
+                            + task.description + &quot;^&quot; + task.status + &quot;^&quot; + epic.id + &quot;^&quot; + task.startTime + &quot;^&quot; + task.duration;
+                    }
+<span class="fc" id="L83">                }</span>
+<span class="fc" id="L84">            }</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">        } else if (TaskType.TASK.equals(task.taskType)){</span>
+<span class="fc" id="L86">            str = task.id + &quot;^&quot; + task.taskType + &quot;^&quot; + task.name + &quot;^&quot;</span>
+                + task.description + &quot;^&quot; + task.status + &quot;^&quot; + task.startTime + &quot;^&quot; + task.duration;
+        } else {
+<span class="fc" id="L89">            str = task.id + &quot;^&quot; + task.taskType + &quot;^&quot; + task.name + &quot;^&quot;</span>
+                + task.description + &quot;^&quot; + task.status;
+        }
+<span class="fc" id="L92">        return str;</span>
+    }
+
+    public void save() {
+<span class="fc" id="L96">        List&lt;String&gt; allTasks = new ArrayList&lt;&gt;(</span>
+<span class="fc" id="L97">            Stream.concat(</span>
+<span class="fc" id="L98">                    Stream.concat(baseTask.values().stream(), baseEpic.values().stream()),</span>
+<span class="fc" id="L99">                    baseEpic.values().stream()</span>
+<span class="fc" id="L100">                        .flatMap(epic -&gt; epic.getSubTaskArray().values().stream())</span>
+                )
+<span class="fc" id="L102">                .sorted((task1, task2) -&gt; Integer.compare(task1.getId(), task2.getId()))</span>
+<span class="fc" id="L103">                .map(this::taskToString)</span>
+<span class="fc" id="L104">                .toList()</span>
+        );
+
+<span class="fc" id="L107">        allTasks.add(0, historyInStr(historyInMemory.getArrayHistory()));</span>
+
+<span class="fc" id="L109">        try (Writer writer = new FileWriter(taskFile.toFile())) {</span>
+<span class="fc bfc" id="L110" title="All 2 branches covered.">            for (String task : allTasks) {</span>
+<span class="fc" id="L111">                writer.write(task);</span>
+<span class="fc" id="L112">                writer.write(System.lineSeparator());</span>
+<span class="fc" id="L113">            }</span>
+<span class="nc" id="L114">        } catch (IOException e) {</span>
+<span class="nc" id="L115">            throw new RuntimeException(&quot;Не удалось сохранить задачи в файл&quot;, e);</span>
+<span class="fc" id="L116">        }</span>
+<span class="fc" id="L117">    }</span>
+
+    private String historyInStr(LinkedHashSet&lt;Task&gt; arrayHistory) {
+<span class="fc" id="L120">        List&lt;String&gt; history = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L121" title="All 2 branches covered.">        for (Task task : arrayHistory) {</span>
+<span class="fc" id="L122">            history.add(String.valueOf(task.id));</span>
+<span class="fc" id="L123">        }</span>
+<span class="fc" id="L124">        return String.join(&quot;,&quot;, history);</span>
+    }
+
+    @Override
+    public boolean timeCheck(LocalDateTime startTime, int durationInt) {
+<span class="nc" id="L129">        return super.timeCheck(startTime, durationInt);</span>
+    }
+    }
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
