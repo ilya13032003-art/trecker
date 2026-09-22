@@ -1,0 +1,13 @@
+Task.class
+FileManager.class
+HistoryManager.class
+Epic.class
+InMemoryTaskManager.class
+TaskStatus.class
+Main.class
+FileBackedTasksManager.class
+InMemoryTaskManager$1.class
+TaskManager.class
+HistoryInFile.class
+TaskType.class
+HistoryInMemory.class

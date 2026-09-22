@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InMemoryTaskManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">trecker</a> &gt; <a href="index.source.html" class="el_package">default</a> &gt; <span class="el_source">InMemoryTaskManager.java</span></div><h1>InMemoryTaskManager.java</h1><pre class="source lang-java linenums">import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.TreeSet;
+
+<span class="fc" id="L8">public class InMemoryTaskManager implements TaskManager {</span>
+
+<span class="fc" id="L10">    protected int indicator = 0;</span>
+    protected static final int SLOT_MINUTES = 5;
+    protected static final int SLOTS_PER_YEAR = 365 * 24 * 12;
+<span class="fc" id="L13">    protected static final LocalDateTime DAY_Z = LocalDateTime.of(2026, 9, 17, 0,0);</span>
+    //именно в этот день я сел писать эту часть кода, задачам можно будет присваивать время до 1 года вперёд от этой даты
+
+<span class="fc" id="L16">    protected HashMap&lt;Integer, Task&gt; baseTask = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L17">    protected HashMap&lt;Integer, Epic&gt; baseEpic = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L18">    protected boolean[] slots =  new boolean[SLOTS_PER_YEAR];</span>
+
+    public Set&lt;Task&gt; getPrioritizedTasks() {
+<span class="fc" id="L21">        return prioritizedTasks;</span>
+    }
+
+<span class="fc" id="L24">    protected final Set&lt;Task&gt; prioritizedTasks =</span>
+<span class="fc" id="L25">        new TreeSet&lt;&gt;(Comparator.comparing(task -&gt; task.startTime));</span>
+
+    public HashMap&lt;Integer, Task&gt; getBaseTask() {
+<span class="fc" id="L28">        return baseTask;</span>
+    }
+
+    public HashMap&lt;Integer, Epic&gt; getBaseEpic() {
+<span class="fc" id="L32">        return baseEpic;</span>
+    }
+
+    @Override
+    public int setIndicator() {
+<span class="nc" id="L37">        return indicator++;</span>
+    }
+
+    @Override
+    public int getIndicator() {
+<span class="nc" id="L42">        return indicator;</span>
+    }
+
+    @Override
+    public Task createTask(String name, String description, TaskType taskType, LocalDateTime startTime, Duration duration) {
+<span class="fc" id="L47">        Task task = new Task(name, description, ++indicator, taskType, startTime, duration);</span>
+<span class="fc" id="L48">        baseTask.put(task.id, task);</span>
+<span class="fc" id="L49">        prioritizedTasks.add(task);</span>
+<span class="fc" id="L50">        return task;</span>
+    }
+
+    @Override
+    public Epic createEpic(String name, String description, TaskType taskType) {
+<span class="fc" id="L55">        Epic epic = new Epic(name, description, ++indicator, taskType);</span>
+<span class="fc" id="L56">        baseEpic.put(epic.id, epic);</span>
+<span class="fc" id="L57">        return epic;</span>
+    }
+
+    @Override
+    public Task createSubTask(String name, String description, int epicId,
+        TaskType taskType, LocalDateTime startTime, Duration duration) {
+<span class="fc" id="L63">        Epic epic = baseEpic.get(epicId);</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">        if (epic == null) {</span>
+<span class="fc" id="L65">            throw new IllegalArgumentException(&quot;Эпика с таким ID нет&quot;);</span>
+        }
+
+<span class="fc" id="L68">        Task task = new Task(name, description, ++indicator, taskType, startTime, duration);</span>
+<span class="fc" id="L69">        epic.getSubTaskArray().put(task.id, task);</span>
+<span class="fc" id="L70">        epic.timing();</span>
+<span class="fc" id="L71">        checkStatus(epic);</span>
+<span class="fc" id="L72">        prioritizedTasks.add(task);</span>
+<span class="fc" id="L73">        return task;</span>
+    }
+
+    @Override
+    public void updateStatus(int taskID, TaskType taskType, TaskStatus status) {
+<span class="pc bpc" id="L78" title="1 of 4 branches missed.">        if (TaskType.TASK.equals(taskType) &amp;&amp; !getBaseTask().containsKey(taskID)) {</span>
+<span class="nc" id="L79">            System.out.println(&quot;Задачи с таким ID нет&quot;);</span>
+<span class="pc bpc" id="L80" title="1 of 4 branches missed.">        } else if (TaskType.SUB_TASK.equals(taskType) &amp;&amp; searchEpic(taskID) == null) {</span>
+<span class="nc" id="L81">            System.out.println(&quot;Задачи с таким ID нет&quot;);</span>
+        } else {
+<span class="fc" id="L83">            updateTaskStatus(taskType, taskID, status);</span>
+        }
+<span class="fc" id="L85">    }</span>
+
+    protected void updateTaskStatus(TaskType taskType, int taskID, TaskStatus status) {
+<span class="fc bfc" id="L88" title="All 2 branches covered.">        if (TaskType.TASK.equals(taskType)) {</span>
+<span class="fc" id="L89">            getBaseTask().get(taskID).status = status;</span>
+        } else {
+<span class="fc" id="L91">            searchEpic(taskID).getSubTaskArray().get(taskID).status = status;</span>
+<span class="fc" id="L92">            checkStatus(searchEpic(taskID));</span>
+        }
+<span class="fc" id="L94">    }</span>
+
+    @Override
+    public void removeTaskByType(TaskType taskType, int taskId) {
+<span class="fc bfc" id="L98" title="All 2 branches covered.">        if (TaskType.TASK.equals(taskType)) {</span>
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">            if (getBaseTask().get(taskId) == null) {</span>
+<span class="nc" id="L100">                System.out.println(&quot;Такой задачи нет&quot;);</span>
+            } else {
+<span class="fc" id="L102">                Task task = getBaseTask().get(taskId);</span>
+<span class="fc" id="L103">                int startSlot = dateInSlot(task.startTime);</span>
+<span class="fc bfc" id="L104" title="All 2 branches covered.">                for (int i = startSlot; i &lt; startSlot + task.duration.toMinutes() / 5; i++) {</span>
+<span class="fc" id="L105">                    slots[i] = false;</span>
+                }
+<span class="fc" id="L107">                prioritizedTasks.remove(getBaseTask().get(taskId));</span>
+<span class="fc" id="L108">                getBaseTask().remove(taskId);</span>
+<span class="fc" id="L109">                System.out.println(&quot;Задача удалена&quot;);</span>
+<span class="fc" id="L110">            }</span>
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">        } else if (TaskType.EPIC.equals(taskType)) {</span>
+<span class="pc bpc" id="L112" title="1 of 2 branches missed.">            if (getBaseEpic().get(taskId) == null) {</span>
+<span class="nc" id="L113">                System.out.println(&quot;Такого эпика - нет&quot;);</span>
+            } else {
+<span class="fc bfc" id="L115" title="All 2 branches covered.">                for (Task task : getBaseEpic().get(taskId).getSubTaskArray().values()) {</span>
+<span class="fc" id="L116">                    int startSlot = dateInSlot(task.startTime);</span>
+<span class="fc" id="L117">                    prioritizedTasks.remove(task);</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">                    for (int i = startSlot; i &lt; startSlot + task.duration.toMinutes() / 5; i++) {</span>
+<span class="fc" id="L119">                        slots[i] = false;</span>
+                    }
+<span class="fc" id="L121">                }</span>
+<span class="fc" id="L122">                getBaseEpic().remove(taskId);</span>
+<span class="fc" id="L123">                System.out.println(&quot;Эпик удален&quot;);</span>
+            }
+        }
+<span class="fc" id="L126">    }</span>
+
+    @Override
+    public void removeSubTask(int taskId) {
+<span class="fc" id="L130">        Epic epic = searchEpic(taskId);</span>
+<span class="fc" id="L131">        Task task = epic.getSubTaskArray().get(taskId);</span>
+<span class="pc bpc" id="L132" title="1 of 2 branches missed.">        if (epic == null) {</span>
+<span class="nc" id="L133">            System.out.println(&quot;Подзадачи с таким ID - нет&quot;);</span>
+        } else {
+<span class="fc" id="L135">            int startSlot = dateInSlot(task.startTime);</span>
+<span class="fc bfc" id="L136" title="All 2 branches covered.">            for (int i = startSlot; i &lt; startSlot + task.duration.toMinutes() / 5; i++) {</span>
+<span class="fc" id="L137">                slots[i] = false;</span>
+            }
+<span class="fc" id="L139">            prioritizedTasks.remove(task);</span>
+<span class="fc" id="L140">            epic.getSubTaskArray().remove(taskId);</span>
+<span class="pc bpc" id="L141" title="1 of 2 branches missed.">            if (!epic.getSubTaskArray().isEmpty()) {</span>
+<span class="nc" id="L142">                epic.timing();</span>
+            } else {
+<span class="fc" id="L144">                epic.duration = null;</span>
+<span class="fc" id="L145">                epic.startTime = null;</span>
+            }
+<span class="fc" id="L147">            System.out.println(&quot;Подзадача удалена&quot;);</span>
+<span class="fc" id="L148">            checkStatus(epic);</span>
+        }
+<span class="fc" id="L150">    }</span>
+
+    protected Epic searchEpic(int epicId) {
+<span class="fc" id="L153">        Epic epic = null;</span>
+<span class="fc bfc" id="L154" title="All 2 branches covered.">        for (Epic ep : getBaseEpic().values()) {</span>
+<span class="pc bpc" id="L155" title="1 of 2 branches missed.">            if (ep.getSubTaskArray().containsKey(epicId)) {</span>
+<span class="fc" id="L156">                epic = ep;</span>
+            }
+<span class="fc" id="L158">        }</span>
+<span class="fc" id="L159">        return epic;</span>
+    }
+
+    public void checkStatus(Epic epic) {
+<span class="fc" id="L163">        boolean done = true;</span>
+<span class="fc" id="L164">        boolean neww = true;</span>
+<span class="fc bfc" id="L165" title="All 2 branches covered.">        for (Task subTask : epic.getSubTaskArray().values()) {</span>
+<span class="pc bpc" id="L166" title="1 of 4 branches missed.">            switch (subTask.status) {</span>
+                case IN_PROGRESS -&gt; {
+<span class="fc" id="L168">                    done = false;</span>
+<span class="fc" id="L169">                    neww = false;</span>
+<span class="fc" id="L170">                }</span>
+<span class="fc" id="L171">                case NEW -&gt; done = false;</span>
+<span class="fc" id="L172">                case DONE -&gt; neww = false;</span>
+            }
+<span class="fc" id="L174">        }</span>
+<span class="fc bfc" id="L175" title="All 4 branches covered.">        if (done &amp;&amp; !neww) {</span>
+<span class="fc" id="L176">            epic.status = TaskStatus.DONE;</span>
+<span class="fc bfc" id="L177" title="All 4 branches covered.">        } else if (neww &amp;&amp; !done) {</span>
+<span class="fc" id="L178">            epic.status = TaskStatus.NEW;</span>
+        } else {
+<span class="fc" id="L180">            epic.status = TaskStatus.IN_PROGRESS;</span>
+        }
+<span class="fc" id="L182">    }</span>
+
+    @Override
+    public void removeAll() {
+<span class="fc" id="L186">        getBaseTask().clear();</span>
+<span class="fc" id="L187">        getBaseEpic().clear();</span>
+<span class="fc bfc" id="L188" title="All 2 branches covered.">        for (int i = 0; i &lt; slots.length; i++) {</span>
+<span class="fc" id="L189">            slots[i] = false;</span>
+        }
+<span class="fc" id="L191">        System.out.println(&quot;Все задачи удалены&quot;);</span>
+<span class="fc" id="L192">        prioritizedTasks.clear();</span>
+<span class="fc" id="L193">    }</span>
+
+    protected boolean isFree(int startSlot, int numberOfSlots) {
+<span class="fc bfc" id="L196" title="All 2 branches covered.">        for (int i = startSlot; i &lt; startSlot + numberOfSlots; i++) {</span>
+<span class="fc bfc" id="L197" title="All 2 branches covered.">            if (slots[i]) {</span>
+<span class="fc" id="L198">                return false;</span>
+            }
+        }
+<span class="fc" id="L201">        return true;</span>
+    }
+
+    protected void occupy(int startSlot, int numberOfSlots) {
+<span class="pc bpc" id="L205" title="1 of 2 branches missed.">        if (isFree(startSlot, numberOfSlots)) {</span>
+<span class="fc bfc" id="L206" title="All 2 branches covered.">            for (int i = startSlot; i &lt; startSlot + numberOfSlots; i++) {</span>
+<span class="fc" id="L207">                slots[i] = true;</span>
+            }
+        }
+<span class="fc" id="L210">    }</span>
+
+    protected Integer dateInSlot(LocalDateTime startTime) {
+<span class="fc" id="L213">        Duration difference = Duration.between(DAY_Z, startTime);</span>
+<span class="fc" id="L214">        int min = (int) difference.toMinutes();</span>
+<span class="fc" id="L215">        int startSlot = min / 5;</span>
+<span class="fc" id="L216">        return startSlot;</span>
+    }
+
+    @Override
+    public boolean timeCheck(LocalDateTime startTime, int durationInt) {
+<span class="fc" id="L221">        int startSlot = dateInSlot(startTime);</span>
+<span class="fc" id="L222">        int numberOfSlots = durationInt / 5;</span>
+<span class="fc bfc" id="L223" title="All 2 branches covered.">        if (isFree(startSlot, numberOfSlots)) {</span>
+<span class="fc" id="L224">            occupy(startSlot, numberOfSlots);</span>
+<span class="fc" id="L225">            return true;</span>
+        } else {
+<span class="fc" id="L227">            return false;</span>
+        }
+    }
+}
+
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

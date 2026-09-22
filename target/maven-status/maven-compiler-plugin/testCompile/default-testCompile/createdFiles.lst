@@ -1,0 +1,7 @@
+HistoryInMemoryTest.class
+FileManagerTest.class
+TaskTest.class
+FileBackedTasksManagerTest.class
+InMemoryTaskManagerTest.class
+EpicTest.class
+HistoryInFileTest.class
