@@ -160,21 +160,22 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     public void checkStatus(Epic epic) {
-        boolean done = true;
-        boolean neww = true;
+        boolean isDone = true;
+        //Илюха привет название сам тебе поменял а то меня это уже несколько спринтов калит, внатуре шизею помаленьку
+        boolean isNew = true;
         for (Task subTask : epic.getSubTaskArray().values()) {
             switch (subTask.status) {
                 case IN_PROGRESS -> {
-                    done = false;
-                    neww = false;
+                    isDone = false;
+                    isNew = false;
                 }
-                case NEW -> done = false;
-                case DONE -> neww = false;
+                case NEW -> isDone = false;
+                case DONE -> isNew = false;
             }
         }
-        if (done && !neww) {
+        if (isDone && !isNew) {
             epic.status = TaskStatus.DONE;
-        } else if (neww && !done) {
+        } else if (isNew && !isDone) {
             epic.status = TaskStatus.NEW;
         } else {
             epic.status = TaskStatus.IN_PROGRESS;
