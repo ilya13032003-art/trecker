@@ -1,3 +1,8 @@
+package models;
+
+import models.field.TaskStatus;
+import models.field.TaskType;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -29,6 +34,14 @@ public class Epic extends Task {
         return subTaskArray;
     }
 
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
     @Override
     public String toString() {
         return
@@ -51,8 +64,7 @@ public class Epic extends Task {
     public LocalDateTime getEndTime() {
         LocalDateTime endTime = null;
         for (Task task : getSubTaskArray().values()) {
-            if (endTime == null
-                || task.getEndTime().isAfter(endTime)) {
+            if (endTime == null || task.getEndTime().isAfter(endTime)) {
                 endTime = task.getEndTime();
             }
         }
@@ -71,13 +83,12 @@ public class Epic extends Task {
     }
 
     public Duration getDuration() {
-        LocalDateTime start = getStartTime();
-        LocalDateTime end = getEndTime();
-        if (start == null || end == null) {
-            return Duration.ZERO;
+        Duration sumDuration = Duration.ZERO;
+        for (Task task : getSubTaskArray().values()) {
+            sumDuration = sumDuration.plus(task.duration);
         }
-        return Duration.between(start, end);
-    }
+        return sumDuration;
+        }
 
     public void timing() {
         getStartTime();

@@ -1,3 +1,5 @@
+package managerTest;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -5,8 +7,14 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import history.HistoryInMemory;
+import manager.FileBackedTasksManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import models.Epic;
+import models.Task;
+import models.field.TaskStatus;
+import models.field.TaskType;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -28,26 +36,26 @@ class FileBackedTasksManagerTest {
         Path file = temporaryDirectory.resolve("tasks.txt");
         FileBackedTasksManager manager = manager(file);
 
-        manager.createTask("Task", "Description", TaskType.TASK,
+        manager.createTask("tasks.Task", "Description", TaskType.TASK,
             LocalDateTime.of(2026, 9, 20, 10, 0), Duration.ofMinutes(30));
 
         List<String> lines = Files.readAllLines(file);
         assertEquals(2, lines.size());
         assertEquals("", lines.get(0));
-        assertTrue(lines.get(1).contains("^TASK^Task^Description^NEW^"));
+        assertTrue(lines.get(1).contains("^TASK^tasks.Task^Description^NEW^"));
     }
 
     @Test
     void savesEpicAndItsSubtask() throws IOException {
         Path file = temporaryDirectory.resolve("tasks.txt");
         FileBackedTasksManager manager = manager(file);
-        Epic epic = manager.createEpic("Epic", "Description", TaskType.EPIC);
+        Epic epic = manager.createEpic("tasks.Epic", "Description", TaskType.EPIC);
         manager.createSubTask("Subtask", "Description", epic.getId(), TaskType.SUB_TASK,
             LocalDateTime.of(2026, 9, 20, 10, 0), Duration.ofMinutes(30));
 
         List<String> lines = Files.readAllLines(file);
         assertEquals(3, lines.size());
-        assertTrue(lines.get(1).contains("^EPIC^Epic^Description^NEW"));
+        assertTrue(lines.get(1).contains("^EPIC^tasks.Epic^Description^NEW"));
         assertTrue(lines.get(2).contains("^SUB_TASK^Subtask^Description^NEW^" + epic.getId() + "^"));
     }
 
@@ -55,7 +63,7 @@ class FileBackedTasksManagerTest {
     void persistsUpdatedStatusAndDeletion() throws IOException {
         Path file = temporaryDirectory.resolve("tasks.txt");
         FileBackedTasksManager manager = manager(file);
-        Task task = manager.createTask("Task", "Description", TaskType.TASK,
+        Task task = manager.createTask("tasks.Task", "Description", TaskType.TASK,
             LocalDateTime.of(2026, 9, 20, 10, 0), Duration.ofMinutes(30));
 
         manager.updateStatus(task.getId(), TaskType.TASK, TaskStatus.DONE);
@@ -69,7 +77,7 @@ class FileBackedTasksManagerTest {
     void removesAllTasksFromFile() throws IOException {
         Path file = temporaryDirectory.resolve("tasks.txt");
         FileBackedTasksManager manager = manager(file);
-        manager.createTask("Task", "Description", TaskType.TASK,
+        manager.createTask("tasks.Task", "Description", TaskType.TASK,
             LocalDateTime.of(2026, 9, 20, 10, 0), Duration.ofMinutes(30));
 
         manager.removeAll();

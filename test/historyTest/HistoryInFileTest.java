@@ -1,11 +1,17 @@
+package historyTest;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
+import history.HistoryInFile;
+import manager.FileBackedTasksManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import models.Task;
+import models.field.TaskType;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -20,7 +26,7 @@ class HistoryInFileTest {
         HistoryInFile history = new HistoryInFile();
         manager.setHistory(history);
         history.setManager(manager);
-        Task task = manager.createTask("Task", "Description", TaskType.TASK,
+        Task task = manager.createTask("tasks.Task", "Description", TaskType.TASK,
             LocalDateTime.of(2026, 9, 20, 10, 0), Duration.ofMinutes(30));
 
         history.add(task);
@@ -37,7 +43,7 @@ class HistoryInFileTest {
         HistoryInFile history = new HistoryInFile();
         manager.setHistory(history);
         history.setManager(manager);
-        Task task = manager.createTask("Task", "Description", TaskType.TASK,
+        Task task = manager.createTask("tasks.Task", "Description", TaskType.TASK,
             LocalDateTime.of(2026, 9, 20, 10, 0), Duration.ofMinutes(30));
         history.add(task);
 

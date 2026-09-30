@@ -1,3 +1,10 @@
+package manager;
+
+import models.Epic;
+import models.Task;
+import models.field.TaskStatus;
+import models.field.TaskType;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -22,7 +29,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     protected final Set<Task> prioritizedTasks =
-        new TreeSet<>(Comparator.comparing(task -> task.startTime));
+        new TreeSet<>(Comparator.comparing(task -> task.getStartTime()));
 
     public HashMap<Integer, Task> getBaseTask() {
         return baseTask;
@@ -45,7 +52,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Task createTask(String name, String description, TaskType taskType, LocalDateTime startTime, Duration duration) {
         Task task = new Task(name, description, ++indicator, taskType, startTime, duration);
-        baseTask.put(task.id, task);
+        baseTask.put(task.getId(), task);
         prioritizedTasks.add(task);
         return task;
     }
@@ -53,7 +60,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Epic createEpic(String name, String description, TaskType taskType) {
         Epic epic = new Epic(name, description, ++indicator, taskType);
-        baseEpic.put(epic.id, epic);
+        baseEpic.put(epic.getId(), epic);
         return epic;
     }
 
@@ -66,7 +73,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
 
         Task task = new Task(name, description, ++indicator, taskType, startTime, duration);
-        epic.getSubTaskArray().put(task.id, task);
+        epic.getSubTaskArray().put(task.getId(), task);
         epic.timing();
         checkStatus(epic);
         prioritizedTasks.add(task);
@@ -86,9 +93,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     protected void updateTaskStatus(TaskType taskType, int taskID, TaskStatus status) {
         if (TaskType.TASK.equals(taskType)) {
-            getBaseTask().get(taskID).status = status;
+            getBaseTask().get(taskID).setStatus(status);
         } else {
-            searchEpic(taskID).getSubTaskArray().get(taskID).status = status;
+            searchEpic(taskID).getSubTaskArray().get(taskID).setStatus(status);
             checkStatus(searchEpic(taskID));
         }
     }
@@ -100,8 +107,8 @@ public class InMemoryTaskManager implements TaskManager {
                 System.out.println("Такой задачи нет");
             } else {
                 Task task = getBaseTask().get(taskId);
-                int startSlot = dateInSlot(task.startTime);
-                for (int i = startSlot; i < startSlot + task.duration.toMinutes() / 5; i++) {
+                int startSlot = dateInSlot(task.getStartTime());
+                for (int i = startSlot; i < startSlot + task.getDuration().toMinutes() / 5; i++) {
                     slots[i] = false;
                 }
                 prioritizedTasks.remove(getBaseTask().get(taskId));
@@ -113,9 +120,9 @@ public class InMemoryTaskManager implements TaskManager {
                 System.out.println("Такого эпика - нет");
             } else {
                 for (Task task : getBaseEpic().get(taskId).getSubTaskArray().values()) {
-                    int startSlot = dateInSlot(task.startTime);
+                    int startSlot = dateInSlot(task.getStartTime());
                     prioritizedTasks.remove(task);
-                    for (int i = startSlot; i < startSlot + task.duration.toMinutes() / 5; i++) {
+                    for (int i = startSlot; i < startSlot + task.getDuration().toMinutes() / 5; i++) {
                         slots[i] = false;
                     }
                 }
@@ -128,12 +135,12 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void removeSubTask(int taskId) {
         Epic epic = searchEpic(taskId);
-        Task task = epic.getSubTaskArray().get(taskId);
         if (epic == null) {
             System.out.println("Подзадачи с таким ID - нет");
         } else {
-            int startSlot = dateInSlot(task.startTime);
-            for (int i = startSlot; i < startSlot + task.duration.toMinutes() / 5; i++) {
+            Task task = epic.getSubTaskArray().get(taskId);
+            int startSlot = dateInSlot(task.getStartTime());
+            for (int i = startSlot; i < startSlot + task.getDuration().toMinutes() / 5; i++) {
                 slots[i] = false;
             }
             prioritizedTasks.remove(task);
@@ -141,8 +148,8 @@ public class InMemoryTaskManager implements TaskManager {
             if (!epic.getSubTaskArray().isEmpty()) {
                 epic.timing();
             } else {
-                epic.duration = null;
-                epic.startTime = null;
+                epic.setDuration(null);
+                epic.setStartTime(null);
             }
             System.out.println("Подзадача удалена");
             checkStatus(epic);
@@ -161,24 +168,27 @@ public class InMemoryTaskManager implements TaskManager {
 
     public void checkStatus(Epic epic) {
         boolean isDone = true;
-        //Илюха привет название сам тебе поменял а то меня это уже несколько спринтов калит, внатуре шизею помаленьку
         boolean isNew = true;
-        for (Task subTask : epic.getSubTaskArray().values()) {
-            switch (subTask.status) {
-                case IN_PROGRESS -> {
-                    isDone = false;
-                    isNew = false;
-                }
-                case NEW -> isDone = false;
-                case DONE -> isNew = false;
-            }
-        }
-        if (isDone && !isNew) {
-            epic.status = TaskStatus.DONE;
-        } else if (isNew && !isDone) {
-            epic.status = TaskStatus.NEW;
+        if (epic.getSubTaskArray().isEmpty()) {
+            epic.setStatus(TaskStatus.NEW);
         } else {
-            epic.status = TaskStatus.IN_PROGRESS;
+            for (Task subTask : epic.getSubTaskArray().values()) {
+                switch (subTask.getStatus()) {
+                    case IN_PROGRESS -> {
+                        isDone = false;
+                        isNew = false;
+                    }
+                    case NEW -> isDone = false;
+                    case DONE -> isNew = false;
+                }
+            }
+            if (isDone && !isNew) {
+                epic.setStatus(TaskStatus.DONE);
+            } else if (isNew && !isDone) {
+                epic.setStatus(TaskStatus.NEW);
+            } else {
+                epic.setStatus(TaskStatus.IN_PROGRESS);
+            }
         }
     }
 

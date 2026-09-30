@@ -1,3 +1,11 @@
+package manager;
+
+import history.HistoryInMemory;
+import models.Epic;
+import models.Task;
+import models.field.TaskStatus;
+import models.field.TaskType;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
@@ -73,21 +81,22 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
     private String taskToString(Task task) {
         String str = null;
-        if (TaskType.SUB_TASK.equals(task.taskType)) {
+        if (TaskType.SUB_TASK.equals(task.getTaskType())) {
             for (Epic epic : baseEpic.values()) {
                 for (int id : epic.getSubTasksId()) {
-                    if (task.id == id) {
-                        str = task.id + "^" + task.taskType + "^" + task.name + "^"
-                            + task.description + "^" + task.status + "^" + epic.id + "^" + task.startTime + "^" + task.duration;
+                    if (task.getId() == id) {
+                        str = task.getId() + "^" + task.getTaskType() + "^" + task.getName() + "^"
+                            + task.getDescription() + "^" + task.getStatus() + "^"
+                            + epic.getId() + "^" + task.getStartTime() + "^" + task.getDuration();
                     }
                 }
             }
-        } else if (TaskType.TASK.equals(task.taskType)){
-            str = task.id + "^" + task.taskType + "^" + task.name + "^"
-                + task.description + "^" + task.status + "^" + task.startTime + "^" + task.duration;
+        } else if (TaskType.TASK.equals(task.getTaskType())){
+            str = task.getId() + "^" + task.getTaskType() + "^" + task.getName() + "^"
+                + task.getDescription() + "^" + task.getStatus() + "^" + task.getStartTime() + "^" + task.getDuration();
         } else {
-            str = task.id + "^" + task.taskType + "^" + task.name + "^"
-                + task.description + "^" + task.status;
+            str = task.getId() + "^" + task.getTaskType() + "^" + task.getName() + "^"
+                + task.getDescription() + "^" + task.getStatus();
         }
         return str;
     }
@@ -119,7 +128,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     private String historyInStr(LinkedHashSet<Task> arrayHistory) {
         List<String> history = new ArrayList<>();
         for (Task task : arrayHistory) {
-            history.add(String.valueOf(task.id));
+            history.add(String.valueOf(task.getId()));
         }
         return String.join(",", history);
     }

@@ -1,3 +1,10 @@
+package manager;
+
+import models.Epic;
+import models.Task;
+import models.field.TaskStatus;
+import models.field.TaskType;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -66,7 +73,7 @@ public class FileManager {
             LocalDateTime startTime = LocalDateTime.parse(arr[6]);
             Duration duration = Duration.parse(arr[7]);
             for (Epic epic : baseEpic.values()) {
-                if (epicId == epic.id) {
+                if (epicId == epic.getId()) {
                     epic.getSubTaskArray().put(id, new Task(arr[2], arr[3], id, status, type, startTime, duration));
                     epic.timing();
                     task = epic.getSubTaskArray().get(id);

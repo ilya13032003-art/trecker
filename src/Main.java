@@ -1,4 +1,16 @@
 
+import history.HistoryInFile;
+import history.HistoryInMemory;
+import history.HistoryManager;
+import manager.FileBackedTasksManager;
+import manager.FileManager;
+import manager.InMemoryTaskManager;
+import manager.TaskManager;
+import models.Epic;
+import models.Task;
+import models.field.TaskStatus;
+import models.field.TaskType;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -43,10 +55,10 @@ public class Main {
                             maxId = id;
                         }
                         Task task = fileManager.stringToTask(newTasks.get(i), manager.getBaseTask(), manager.getBaseEpic());
-                        if (TaskType.EPIC.equals(task.taskType)) {
+                        if (TaskType.EPIC.equals(task.getTaskType())) {
                             //ля ля ля жу жу жу я с мозгами не дружу
                         } else {
-                            manager.timeCheck(task.startTime, (int) task.duration.toMinutes());
+                            manager.timeCheck(task.getStartTime(), (int) task.getDuration().toMinutes());
                             manager.getPrioritizedTasks().add(task);
                         }
                     }

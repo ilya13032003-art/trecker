@@ -128,10 +128,10 @@ import java.util.TreeSet;
     @Override
     public void removeSubTask(int taskId) {
 <span class="fc" id="L130">        Epic epic = searchEpic(taskId);</span>
-<span class="fc" id="L131">        Task task = epic.getSubTaskArray().get(taskId);</span>
-<span class="pc bpc" id="L132" title="1 of 2 branches missed.">        if (epic == null) {</span>
-<span class="nc" id="L133">            System.out.println(&quot;Подзадачи с таким ID - нет&quot;);</span>
+<span class="fc bfc" id="L131" title="All 2 branches covered.">        if (epic == null) {</span>
+<span class="fc" id="L132">            System.out.println(&quot;Подзадачи с таким ID - нет&quot;);</span>
         } else {
+<span class="fc" id="L134">            Task task = epic.getSubTaskArray().get(taskId);</span>
 <span class="fc" id="L135">            int startSlot = dateInSlot(task.startTime);</span>
 <span class="fc bfc" id="L136" title="All 2 branches covered.">            for (int i = startSlot; i &lt; startSlot + task.duration.toMinutes() / 5; i++) {</span>
 <span class="fc" id="L137">                slots[i] = false;</span>
@@ -160,71 +160,76 @@ import java.util.TreeSet;
     }
 
     public void checkStatus(Epic epic) {
-<span class="fc" id="L163">        boolean done = true;</span>
-<span class="fc" id="L164">        boolean neww = true;</span>
-<span class="fc bfc" id="L165" title="All 2 branches covered.">        for (Task subTask : epic.getSubTaskArray().values()) {</span>
-<span class="pc bpc" id="L166" title="1 of 4 branches missed.">            switch (subTask.status) {</span>
-                case IN_PROGRESS -&gt; {
-<span class="fc" id="L168">                    done = false;</span>
-<span class="fc" id="L169">                    neww = false;</span>
-<span class="fc" id="L170">                }</span>
-<span class="fc" id="L171">                case NEW -&gt; done = false;</span>
-<span class="fc" id="L172">                case DONE -&gt; neww = false;</span>
-            }
-<span class="fc" id="L174">        }</span>
-<span class="fc bfc" id="L175" title="All 4 branches covered.">        if (done &amp;&amp; !neww) {</span>
-<span class="fc" id="L176">            epic.status = TaskStatus.DONE;</span>
-<span class="fc bfc" id="L177" title="All 4 branches covered.">        } else if (neww &amp;&amp; !done) {</span>
-<span class="fc" id="L178">            epic.status = TaskStatus.NEW;</span>
+<span class="fc" id="L163">        boolean isDone = true;</span>
+        //Илюха привет название сам тебе поменял а то меня это уже несколько спринтов калит, внатуре шизею помаленьку
+<span class="fc" id="L165">        boolean isNew = true;</span>
+<span class="fc bfc" id="L166" title="All 2 branches covered.">        if (epic.getSubTaskArray().isEmpty()) {</span>
+<span class="fc" id="L167">            epic.status = TaskStatus.NEW;</span>
         } else {
-<span class="fc" id="L180">            epic.status = TaskStatus.IN_PROGRESS;</span>
+<span class="fc bfc" id="L169" title="All 2 branches covered.">            for (Task subTask : epic.getSubTaskArray().values()) {</span>
+<span class="pc bpc" id="L170" title="1 of 4 branches missed.">                switch (subTask.status) {</span>
+                    case IN_PROGRESS -&gt; {
+<span class="fc" id="L172">                        isDone = false;</span>
+<span class="fc" id="L173">                        isNew = false;</span>
+<span class="fc" id="L174">                    }</span>
+<span class="fc" id="L175">                    case NEW -&gt; isDone = false;</span>
+<span class="fc" id="L176">                    case DONE -&gt; isNew = false;</span>
+                }
+<span class="fc" id="L178">            }</span>
+<span class="pc bpc" id="L179" title="1 of 4 branches missed.">            if (isDone &amp;&amp; !isNew) {</span>
+<span class="fc" id="L180">                epic.status = TaskStatus.DONE;</span>
+<span class="pc bpc" id="L181" title="1 of 4 branches missed.">            } else if (isNew &amp;&amp; !isDone) {</span>
+<span class="fc" id="L182">                epic.status = TaskStatus.NEW;</span>
+            } else {
+<span class="fc" id="L184">                epic.status = TaskStatus.IN_PROGRESS;</span>
+            }
         }
-<span class="fc" id="L182">    }</span>
+<span class="fc" id="L187">    }</span>
 
     @Override
     public void removeAll() {
-<span class="fc" id="L186">        getBaseTask().clear();</span>
-<span class="fc" id="L187">        getBaseEpic().clear();</span>
-<span class="fc bfc" id="L188" title="All 2 branches covered.">        for (int i = 0; i &lt; slots.length; i++) {</span>
-<span class="fc" id="L189">            slots[i] = false;</span>
+<span class="fc" id="L191">        getBaseTask().clear();</span>
+<span class="fc" id="L192">        getBaseEpic().clear();</span>
+<span class="fc bfc" id="L193" title="All 2 branches covered.">        for (int i = 0; i &lt; slots.length; i++) {</span>
+<span class="fc" id="L194">            slots[i] = false;</span>
         }
-<span class="fc" id="L191">        System.out.println(&quot;Все задачи удалены&quot;);</span>
-<span class="fc" id="L192">        prioritizedTasks.clear();</span>
-<span class="fc" id="L193">    }</span>
+<span class="fc" id="L196">        System.out.println(&quot;Все задачи удалены&quot;);</span>
+<span class="fc" id="L197">        prioritizedTasks.clear();</span>
+<span class="fc" id="L198">    }</span>
 
     protected boolean isFree(int startSlot, int numberOfSlots) {
-<span class="fc bfc" id="L196" title="All 2 branches covered.">        for (int i = startSlot; i &lt; startSlot + numberOfSlots; i++) {</span>
-<span class="fc bfc" id="L197" title="All 2 branches covered.">            if (slots[i]) {</span>
-<span class="fc" id="L198">                return false;</span>
+<span class="fc bfc" id="L201" title="All 2 branches covered.">        for (int i = startSlot; i &lt; startSlot + numberOfSlots; i++) {</span>
+<span class="fc bfc" id="L202" title="All 2 branches covered.">            if (slots[i]) {</span>
+<span class="fc" id="L203">                return false;</span>
             }
         }
-<span class="fc" id="L201">        return true;</span>
+<span class="fc" id="L206">        return true;</span>
     }
 
     protected void occupy(int startSlot, int numberOfSlots) {
-<span class="pc bpc" id="L205" title="1 of 2 branches missed.">        if (isFree(startSlot, numberOfSlots)) {</span>
-<span class="fc bfc" id="L206" title="All 2 branches covered.">            for (int i = startSlot; i &lt; startSlot + numberOfSlots; i++) {</span>
-<span class="fc" id="L207">                slots[i] = true;</span>
+<span class="pc bpc" id="L210" title="1 of 2 branches missed.">        if (isFree(startSlot, numberOfSlots)) {</span>
+<span class="fc bfc" id="L211" title="All 2 branches covered.">            for (int i = startSlot; i &lt; startSlot + numberOfSlots; i++) {</span>
+<span class="fc" id="L212">                slots[i] = true;</span>
             }
         }
-<span class="fc" id="L210">    }</span>
+<span class="fc" id="L215">    }</span>
 
     protected Integer dateInSlot(LocalDateTime startTime) {
-<span class="fc" id="L213">        Duration difference = Duration.between(DAY_Z, startTime);</span>
-<span class="fc" id="L214">        int min = (int) difference.toMinutes();</span>
-<span class="fc" id="L215">        int startSlot = min / 5;</span>
-<span class="fc" id="L216">        return startSlot;</span>
+<span class="fc" id="L218">        Duration difference = Duration.between(DAY_Z, startTime);</span>
+<span class="fc" id="L219">        int min = (int) difference.toMinutes();</span>
+<span class="fc" id="L220">        int startSlot = min / 5;</span>
+<span class="fc" id="L221">        return startSlot;</span>
     }
 
     @Override
     public boolean timeCheck(LocalDateTime startTime, int durationInt) {
-<span class="fc" id="L221">        int startSlot = dateInSlot(startTime);</span>
-<span class="fc" id="L222">        int numberOfSlots = durationInt / 5;</span>
-<span class="fc bfc" id="L223" title="All 2 branches covered.">        if (isFree(startSlot, numberOfSlots)) {</span>
-<span class="fc" id="L224">            occupy(startSlot, numberOfSlots);</span>
-<span class="fc" id="L225">            return true;</span>
+<span class="fc" id="L226">        int startSlot = dateInSlot(startTime);</span>
+<span class="fc" id="L227">        int numberOfSlots = durationInt / 5;</span>
+<span class="fc bfc" id="L228" title="All 2 branches covered.">        if (isFree(startSlot, numberOfSlots)) {</span>
+<span class="fc" id="L229">            occupy(startSlot, numberOfSlots);</span>
+<span class="fc" id="L230">            return true;</span>
         } else {
-<span class="fc" id="L227">            return false;</span>
+<span class="fc" id="L232">            return false;</span>
         }
     }
 }

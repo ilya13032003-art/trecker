@@ -1,7 +1,12 @@
+package modelsTest;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.Test;
+import models.Task;
+import models.field.TaskStatus;
+import models.field.TaskType;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -10,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TaskTest {
     private Task task(int id) {
-        return new Task("Task", "Description", id, TaskType.TASK,
+        return new Task("tasks.Task", "Description", id, TaskType.TASK,
             LocalDateTime.of(2026, 9, 20, 10, 0), Duration.ofMinutes(30));
     }
 
@@ -19,7 +24,7 @@ class TaskTest {
         Task task = task(7);
 
         assertEquals(7, task.getId());
-        assertEquals(TaskStatus.NEW, task.status);
+        assertEquals(TaskStatus.NEW, task.getStatus());
     }
 
     @Test

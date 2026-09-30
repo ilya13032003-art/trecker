@@ -1,3 +1,8 @@
+package history;
+
+import manager.FileBackedTasksManager;
+import models.Task;
+
 public class HistoryInFile extends HistoryInMemory {
     private FileBackedTasksManager manager;
 

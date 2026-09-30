@@ -1,15 +1,20 @@
+package historyTest;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import history.HistoryInMemory;
 import org.junit.jupiter.api.Test;
+import models.Task;
+import models.field.TaskType;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class HistoryInMemoryTest {
     private Task task(int id) {
-        return new Task("Task " + id, "Description", id, TaskType.TASK,
+        return new Task("tasks.Task " + id, "Description", id, TaskType.TASK,
             LocalDateTime.of(2026, 9, 20, 10, 0), Duration.ofMinutes(30));
     }
 
@@ -21,6 +26,29 @@ class HistoryInMemoryTest {
         history.add(task);
 
         assertEquals(List.of(task), history.getHistory());
+    }
+
+    @Test
+    void emptyHistory() {
+        HistoryInMemory history = new HistoryInMemory();
+
+        assertEquals(List.of(), history.getHistory());
+    }
+
+    @Test
+    void historyAfterRemoveMidTask() {
+        HistoryInMemory history = new HistoryInMemory();
+        Task earler = task(1);
+        Task mid = task(2);
+        Task later = task(3);
+
+        history.add(earler);
+        history.add(mid);
+        history.add(later);
+
+        history.removeInHistory(2);
+
+        assertEquals(List.of(earler, later), history.getHistory());
     }
 
     @Test

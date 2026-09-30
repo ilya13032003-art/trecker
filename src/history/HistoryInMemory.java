@@ -1,3 +1,7 @@
+package history;
+
+import models.Task;
+
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -39,7 +43,7 @@ public class HistoryInMemory implements HistoryManager {
     public void removeInHistory(int taskId) {
         Task empty = new Task();
         for (Task task : getArrayHistory()) {
-            if (task.id == taskId) {
+            if (task.getId() == taskId) {
                 empty = task;
             }
         }

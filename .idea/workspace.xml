@@ -5,16 +5,64 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ef213c8e-3684-4601-ac16-1c39fe1ba2a7" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/managerTest/InMemoryTaskManagerTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/FileBackedTasksManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/FileBackedTasksManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/FileManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/FileManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/InMemoryTaskManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/InMemoryTaskManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Epic.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/models/Epic.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/FileBackedTasksManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/manager/FileBackedTasksManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/FileManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/manager/FileManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/HistoryInFile.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/history/HistoryInFile.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/HistoryInMemory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/history/HistoryInMemory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/HistoryManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/history/HistoryManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/InMemoryTaskManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/manager/InMemoryTaskManager.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/TaskManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/TaskManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trecker.iml" beforeDir="false" afterPath="$PROJECT_DIR$/trecker.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Task.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/models/Task.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/TaskManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/manager/TaskManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/TaskStatus.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/models/field/TaskStatus.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/TaskType.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/models/field/TaskType.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/Epic.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/Epic.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/InMemoryTaskManager$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/InMemoryTaskManager$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/InMemoryTaskManager.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/InMemoryTaskManager.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/jacoco.exec" beforeDir="false" afterPath="$PROJECT_DIR$/target/jacoco.exec" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/site/jacoco/default/Epic.html" beforeDir="false" afterPath="$PROJECT_DIR$/target/site/jacoco/default/Epic.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/site/jacoco/default/Epic.java.html" beforeDir="false" afterPath="$PROJECT_DIR$/target/site/jacoco/default/Epic.java.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/site/jacoco/default/InMemoryTaskManager.html" beforeDir="false" afterPath="$PROJECT_DIR$/target/site/jacoco/default/InMemoryTaskManager.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/site/jacoco/default/InMemoryTaskManager.java.html" beforeDir="false" afterPath="$PROJECT_DIR$/target/site/jacoco/default/InMemoryTaskManager.java.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/site/jacoco/default/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/target/site/jacoco/default/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/site/jacoco/default/index.source.html" beforeDir="false" afterPath="$PROJECT_DIR$/target/site/jacoco/default/index.source.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/site/jacoco/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/target/site/jacoco/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/site/jacoco/jacoco-sessions.html" beforeDir="false" afterPath="$PROJECT_DIR$/target/site/jacoco/jacoco-sessions.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/site/jacoco/jacoco.csv" beforeDir="false" afterPath="$PROJECT_DIR$/target/site/jacoco/jacoco.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/site/jacoco/jacoco.xml" beforeDir="false" afterPath="$PROJECT_DIR$/target/site/jacoco/jacoco.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/EpicTest.txt" beforeDir="false" afterPath="$PROJECT_DIR$/target/surefire-reports/EpicTest.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/FileBackedTasksManagerTest.txt" beforeDir="false" afterPath="$PROJECT_DIR$/target/surefire-reports/FileBackedTasksManagerTest.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/FileManagerTest.txt" beforeDir="false" afterPath="$PROJECT_DIR$/target/surefire-reports/FileManagerTest.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/HistoryInFileTest.txt" beforeDir="false" afterPath="$PROJECT_DIR$/target/surefire-reports/HistoryInFileTest.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/HistoryInMemoryTest.txt" beforeDir="false" afterPath="$PROJECT_DIR$/target/surefire-reports/HistoryInMemoryTest.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/InMemoryTaskManagerTest.txt" beforeDir="false" afterPath="$PROJECT_DIR$/target/surefire-reports/InMemoryTaskManagerTest.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-EpicTest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/target/surefire-reports/TEST-EpicTest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-FileBackedTasksManagerTest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/target/surefire-reports/TEST-FileBackedTasksManagerTest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-FileManagerTest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/target/surefire-reports/TEST-FileManagerTest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-HistoryInFileTest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/target/surefire-reports/TEST-HistoryInFileTest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-HistoryInMemoryTest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/target/surefire-reports/TEST-HistoryInMemoryTest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-InMemoryTaskManagerTest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/target/surefire-reports/TEST-InMemoryTaskManagerTest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-TaskTest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/target/surefire-reports/TEST-TaskTest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TaskTest.txt" beforeDir="false" afterPath="$PROJECT_DIR$/target/surefire-reports/TaskTest.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/test-classes/EpicTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/test-classes/EpicTest.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/test-classes/HistoryInMemoryTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/test-classes/HistoryInMemoryTest.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/test-classes/InMemoryTaskManagerTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/test-classes/InMemoryTaskManagerTest.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/taskFile.txt" beforeDir="false" afterPath="$PROJECT_DIR$/taskFile.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/ActualRemarksTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/EpicTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/test/modelsTest/EpicTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/FileBackedTasksManagerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/test/managerTest/FileBackedTasksManagerTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/FileManagerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/test/managerTest/FileManagerTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/HistoryInFileTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/test/historyTest/HistoryInFileTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/HistoryInMemoryTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/test/historyTest/HistoryInMemoryTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/InMemoryTaskManagerTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/TaskTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/test/modelsTest/TaskTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/АКТУАЛЬНЫЕ_ЗАМЕЧАНИЯ.md" beforeDir="false" afterPath="$PROJECT_DIR$/АКТУАЛЬНЫЕ_ЗАМЕЧАНИЯ.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -53,24 +101,93 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Application.Main.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;#5 on test&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/activ/Idea/trecker/.idea&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.Main.executor": "Run",
+    "JUnit.EpicTest.executor": "Run",
+    "JUnit.HistoryInMemoryTest.emptyHistory.executor": "Run",
+    "JUnit.HistoryInMemoryTest.historyAfterRemoveMidTask.executor": "Run",
+    "JUnit.InMemoryTaskManagerTest.epicIsInProgressWhenFirstSubtaskIsNewSecondSubtaskIsDone.executor": "Run",
+    "JUnit.InMemoryTaskManagerTest.epicIsNewWhenAfterCreation.executor": "Run",
+    "JUnit.InMemoryTaskManagerTest.epicIsNewWhenDeleteLastSubtask.executor": "Run",
+    "JUnit.InMemoryTaskManagerTest.ordersPrioritizedTasksByStartTimeAfterRemoveMidTask.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "test",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/activ/Idea/trecker/.idea",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.0",
+    "settings.editor.selected.configurable": "preferences.pluginManager"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\activ\Idea\trecker\.idea" />
     </key>
+  </component>
+  <component name="RunManager" selected="JUnit.HistoryInMemoryTest.emptyHistory">
+    <configuration name="HistoryInMemoryTest.emptyHistory" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="trecker" />
+      <option name="PACKAGE_NAME" value="historyTest" />
+      <option name="MAIN_CLASS_NAME" value="historyTest.HistoryInMemoryTest" />
+      <option name="METHOD_NAME" value="emptyHistory" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="HistoryInMemoryTest.historyAfterRemoveMidTask" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="trecker" />
+      <option name="PACKAGE_NAME" value="historyTest" />
+      <option name="MAIN_CLASS_NAME" value="historyTest.HistoryInMemoryTest" />
+      <option name="METHOD_NAME" value="historyAfterRemoveMidTask" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="InMemoryTaskManagerTest.epicIsInProgressWhenFirstSubtaskIsNewSecondSubtaskIsDone" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="trecker" />
+      <option name="PACKAGE_NAME" value="managerTest" />
+      <option name="MAIN_CLASS_NAME" value="managerTest.InMemoryTaskManagerTest" />
+      <option name="METHOD_NAME" value="epicIsInProgressWhenFirstSubtaskIsNewSecondSubtaskIsDone" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="InMemoryTaskManagerTest.epicIsNewWhenAfterCreation" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="trecker" />
+      <option name="PACKAGE_NAME" value="managerTest" />
+      <option name="MAIN_CLASS_NAME" value="managerTest.InMemoryTaskManagerTest" />
+      <option name="METHOD_NAME" value="epicIsNewWhenAfterCreation" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="InMemoryTaskManagerTest.ordersPrioritizedTasksByStartTimeAfterRemoveMidTask" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="trecker" />
+      <option name="PACKAGE_NAME" value="managerTest" />
+      <option name="MAIN_CLASS_NAME" value="managerTest.InMemoryTaskManagerTest" />
+      <option name="METHOD_NAME" value="ordersPrioritizedTasksByStartTimeAfterRemoveMidTask" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="JUnit.HistoryInMemoryTest.emptyHistory" />
+        <item itemvalue="JUnit.HistoryInMemoryTest.historyAfterRemoveMidTask" />
+        <item itemvalue="JUnit.InMemoryTaskManagerTest.ordersPrioritizedTasksByStartTimeAfterRemoveMidTask" />
+        <item itemvalue="JUnit.InMemoryTaskManagerTest.epicIsNewWhenAfterCreation" />
+        <item itemvalue="JUnit.InMemoryTaskManagerTest.epicIsInProgressWhenFirstSubtaskIsNewSecondSubtaskIsDone" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">

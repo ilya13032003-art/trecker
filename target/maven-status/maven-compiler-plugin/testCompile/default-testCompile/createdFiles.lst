@@ -1,5 +1,6 @@
 HistoryInMemoryTest.class
 FileManagerTest.class
+ActualRemarksTest.class
 TaskTest.class
 FileBackedTasksManagerTest.class
 InMemoryTaskManagerTest.class

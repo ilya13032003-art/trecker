@@ -1,3 +1,5 @@
+package managerTest;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.nio.file.Files;
@@ -5,8 +7,12 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 
+import manager.FileManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import models.Epic;
+import models.Task;
+import models.field.TaskStatus;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -19,7 +25,7 @@ class FileManagerTest {
     @Test
     void readsRecordsFromConfiguredFile() throws Exception {
         Path file = temporaryDirectory.resolve("tasks.txt");
-        List<String> expected = List.of("", "1^EPIC^Epic^Description^NEW");
+        List<String> expected = List.of("", "1^EPIC^tasks.Epic^Description^NEW");
         Files.write(file, expected);
         FileManager fileManager = new FileManager(file);
 
@@ -42,14 +48,14 @@ class FileManagerTest {
         FileManager fileManager = new FileManager();
         HashMap<Integer, Task> tasks = new HashMap<>();
         HashMap<Integer, Epic> epics = new HashMap<>();
-        String[] record = {"7", "TASK", "Task", "Description", "IN_PROGRESS", "2026-09-20T10:00", "PT30M"};
+        String[] record = {"7", "TASK", "tasks.Task", "Description", "IN_PROGRESS", "2026-09-20T10:00", "PT30M"};
 
         Task task = fileManager.stringToTask(record, tasks, epics);
 
         assertSame(task, tasks.get(7));
-        assertEquals(TaskStatus.IN_PROGRESS, task.status);
-        assertEquals(LocalDateTime.of(2026, 9, 20, 10, 0), task.startTime);
-        assertEquals(Duration.ofMinutes(30), task.duration);
+        assertEquals(TaskStatus.IN_PROGRESS, task.getStatus());
+        assertEquals(LocalDateTime.of(2026, 9, 20, 10, 0), task.getStartTime());
+        assertEquals(Duration.ofMinutes(30), task.getDuration());
     }
 
     @Test
@@ -58,7 +64,7 @@ class FileManagerTest {
         HashMap<Integer, Task> tasks = new HashMap<>();
         HashMap<Integer, Epic> epics = new HashMap<>();
         Epic epic = (Epic) fileManager.stringToTask(
-            new String[] {"1", "EPIC", "Epic", "Description", "NEW"}, tasks, epics);
+            new String[] {"1", "EPIC", "tasks.Epic", "Description", "NEW"}, tasks, epics);
 
         Task subtask = fileManager.stringToTask(
             new String[] {"2", "SUB_TASK", "Subtask", "Description", "DONE", "1", "2026-09-20T10:00", "PT30M"},
@@ -66,6 +72,6 @@ class FileManagerTest {
 
         assertSame(epic, epics.get(1));
         assertSame(subtask, epic.getSubTaskArray().get(2));
-        assertEquals(TaskStatus.DONE, subtask.status);
+        assertEquals(TaskStatus.DONE, subtask.getStatus());
     }
 }

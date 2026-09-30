@@ -1,3 +1,4 @@
+package models.field;
 
 public enum TaskType {
     TASK,

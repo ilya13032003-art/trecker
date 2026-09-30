@@ -1,8 +1,14 @@
+package models;
+
+import models.field.TaskStatus;
+import models.field.TaskType;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
 
 
 public class Task {
+
     protected String name;
     protected String description;
     protected int id;
@@ -11,6 +17,33 @@ public class Task {
     protected LocalDateTime startTime;
     protected Duration duration;
 
+    public String getDescription() {
+        return description;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public TaskType getTaskType() {
+        return taskType;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public TaskStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(TaskStatus status) {
+        this.status = status;
+    }
 
     public Task() {
     }
@@ -41,7 +74,7 @@ public class Task {
         return id;
     }
 
-    protected LocalDateTime getEndTime() {
+    public LocalDateTime getEndTime() {
         LocalDateTime endTime = startTime.plus(duration);
         return endTime;
     }
