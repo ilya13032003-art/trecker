@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FileManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">trecker</a> &gt; <a href="index.source.html" class="el_package">default</a> &gt; <span class="el_source">FileManager.java</span></div><h1>FileManager.java</h1><pre class="source lang-java linenums">import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+public class FileManager {
+<span class="fc" id="L13">    public static final Path TASK_FILE =</span>
+<span class="fc" id="L14">        Paths.get(&quot;taskFile.txt&quot;).toAbsolutePath();</span>
+    private final Path taskFile;
+
+    public FileManager() {
+<span class="fc" id="L18">        this(TASK_FILE);</span>
+<span class="fc" id="L19">    }</span>
+
+<span class="fc" id="L21">    public FileManager(Path taskFile) {</span>
+<span class="fc" id="L22">        this.taskFile = taskFile;</span>
+<span class="fc" id="L23">    }</span>
+
+    public List&lt;String&gt; readStr() throws IOException {
+<span class="fc" id="L26">        try (BufferedReader reader = new BufferedReader(new FileReader(taskFile.toFile()))) {</span>
+<span class="fc" id="L27">            List&lt;String&gt; lines = new ArrayList&lt;&gt;();</span>
+            String line;
+<span class="fc bfc" id="L29" title="All 2 branches covered.">            while ((line = reader.readLine()) != null) {</span>
+<span class="fc" id="L30">                lines.add(line);</span>
+            }
+<span class="fc" id="L32">            return lines;</span>
+        }
+    }
+
+    public List&lt;String[]&gt; cutStr(List&lt;String&gt; lines) {
+<span class="fc" id="L37">        List&lt;String[]&gt; newTasks = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L38" title="All 2 branches covered.">        for (String line : lines) {</span>
+<span class="fc" id="L39">            newTasks.add(line.split(&quot;\\^&quot;, -1));</span>
+<span class="fc" id="L40">        }</span>
+<span class="fc" id="L41">        return newTasks;</span>
+    }
+
+    public List&lt;String[]&gt; cutTask() {
+        try {
+<span class="fc" id="L46">            return cutStr(readStr());</span>
+<span class="nc" id="L47">        } catch (IOException e) {</span>
+<span class="nc" id="L48">            throw new RuntimeException(&quot;Не удалось прочитать файл задач&quot;, e);</span>
+        }
+    }
+
+
+    public Task stringToTask(String[] arr, HashMap&lt;Integer, Task&gt; baseTask,
+                             HashMap&lt;Integer, Epic&gt; baseEpic) {
+<span class="fc" id="L55">        int id = Integer.parseInt(arr[0]);</span>
+<span class="fc" id="L56">        TaskStatus status = TaskStatus.valueOf(arr[4]);</span>
+<span class="fc" id="L57">        TaskType type = TaskType.valueOf(arr[1]);</span>
+<span class="fc" id="L58">        Task task = null;</span>
+<span class="fc bfc" id="L59" title="All 2 branches covered.">        if (TaskType.TASK.equals(type)) {</span>
+<span class="fc" id="L60">            LocalDateTime startTime = LocalDateTime.parse(arr[5]);</span>
+<span class="fc" id="L61">            Duration duration = Duration.parse(arr[6]);</span>
+<span class="fc" id="L62">            baseTask.put(id, new Task(arr[2], arr[3], id, status, type, startTime, duration));</span>
+<span class="fc" id="L63">            task = baseTask.get(id);</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">        } else if (TaskType.SUB_TASK.equals(type)) {</span>
+<span class="fc" id="L65">            int epicId = Integer.parseInt(arr[5]);</span>
+<span class="fc" id="L66">            LocalDateTime startTime = LocalDateTime.parse(arr[6]);</span>
+<span class="fc" id="L67">            Duration duration = Duration.parse(arr[7]);</span>
+<span class="fc bfc" id="L68" title="All 2 branches covered.">            for (Epic epic : baseEpic.values()) {</span>
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">                if (epicId == epic.id) {</span>
+<span class="fc" id="L70">                    epic.getSubTaskArray().put(id, new Task(arr[2], arr[3], id, status, type, startTime, duration));</span>
+<span class="fc" id="L71">                    epic.timing();</span>
+<span class="fc" id="L72">                    task = epic.getSubTaskArray().get(id);</span>
+                }
+<span class="fc" id="L74">            }</span>
+<span class="pc bpc" id="L75" title="1 of 2 branches missed.">        } else if (TaskType.EPIC.equals(type)) {</span>
+<span class="fc" id="L76">            baseEpic.put(id, new Epic(arr[2], arr[3], id, status, type));</span>
+<span class="fc" id="L77">            task = baseEpic.get(id);</span>
+        }
+<span class="fc" id="L79">        return task;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

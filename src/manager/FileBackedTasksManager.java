@@ -1,0 +1,140 @@
+package manager;
+
+import history.HistoryInMemory;
+import models.Epic;
+import models.Task;
+import models.field.TaskStatus;
+import models.field.TaskType;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
+import java.nio.file.Path;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.stream.Stream;
+
+public class FileBackedTasksManager extends InMemoryTaskManager {
+    private final Path taskFile;
+    private HistoryInMemory historyInMemory;
+
+    public FileBackedTasksManager() {
+        this(FileManager.TASK_FILE);
+    }
+
+    public FileBackedTasksManager(Path taskFile) {
+        this.taskFile = taskFile;
+    }
+
+    public void setHistory(HistoryInMemory historyInMemory) {
+        this.historyInMemory = historyInMemory;
+    }
+
+    @Override
+    public Task createTask(String name, String description, TaskType taskType, LocalDateTime startTask, Duration duration) {
+        Task task = super.createTask(name, description, taskType, startTask, duration);
+        save();
+        return task;
+    }
+
+    @Override
+    public Epic createEpic(String name, String description, TaskType taskType) {
+        Epic epic = super.createEpic(name, description, taskType);
+        save();
+        return epic;
+    }
+
+    @Override
+    public Task createSubTask(String name, String description, int epicId,
+        TaskType taskType, LocalDateTime startTask, Duration duration) {
+        Task task = super.createSubTask(name, description, epicId, taskType, startTask, duration);
+        save();
+        return task;
+    }
+
+    @Override
+    public void updateStatus(int taskID, TaskType taskType, TaskStatus status) {
+        super.updateStatus(taskID, taskType, status);
+        save();
+    }
+
+    @Override
+    public void removeTaskByType(TaskType taskType, int taskId) {
+        super.removeTaskByType(taskType, taskId);
+        save();
+    }
+
+    @Override
+    public void removeSubTask(int taskId) {
+        super.removeSubTask(taskId);
+        save();
+    }
+
+    @Override
+    public void removeAll() {
+        super.removeAll();
+        save();
+    }
+
+    private String taskToString(Task task) {
+        String str = null;
+        if (TaskType.SUB_TASK.equals(task.getTaskType())) {
+            for (Epic epic : baseEpic.values()) {
+                for (int id : epic.getSubTasksId()) {
+                    if (task.getId() == id) {
+                        str = task.getId() + "^" + task.getTaskType() + "^" + task.getName() + "^"
+                            + task.getDescription() + "^" + task.getStatus() + "^"
+                            + epic.getId() + "^" + task.getStartTime() + "^" + task.getDuration();
+                    }
+                }
+            }
+        } else if (TaskType.TASK.equals(task.getTaskType())){
+            str = task.getId() + "^" + task.getTaskType() + "^" + task.getName() + "^"
+                + task.getDescription() + "^" + task.getStatus() + "^" + task.getStartTime() + "^" + task.getDuration();
+        } else {
+            str = task.getId() + "^" + task.getTaskType() + "^" + task.getName() + "^"
+                + task.getDescription() + "^" + task.getStatus();
+        }
+        return str;
+    }
+
+    public void save() {
+        List<String> allTasks = new ArrayList<>(
+            Stream.concat(
+                    Stream.concat(baseTask.values().stream(), baseEpic.values().stream()),
+                    baseEpic.values().stream()
+                        .flatMap(epic -> epic.getSubTaskArray().values().stream())
+                )
+                .sorted((task1, task2) -> Integer.compare(task1.getId(), task2.getId()))
+                .map(this::taskToString)
+                .toList()
+        );
+
+        allTasks.add(0, historyInStr(historyInMemory.getArrayHistory()));
+
+        try (Writer writer = new FileWriter(taskFile.toFile())) {
+            for (String task : allTasks) {
+                writer.write(task);
+                writer.write(System.lineSeparator());
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Не удалось сохранить задачи в файл", e);
+        }
+    }
+
+    private String historyInStr(LinkedHashSet<Task> arrayHistory) {
+        List<String> history = new ArrayList<>();
+        for (Task task : arrayHistory) {
+            history.add(String.valueOf(task.getId()));
+        }
+        return String.join(",", history);
+    }
+
+    @Override
+    public boolean timeCheck(LocalDateTime startTime, int durationInt) {
+        return super.timeCheck(startTime, durationInt);
+    }
+    }
